@@ -46,6 +46,9 @@ Include `src/sheets.c` and `src/sheets.h` into your application.
 History
 -------
 
+  - 0.2.0 (2012-04-18)
+    - Adds escape characters
+
   - 0.1.0 (2012-04-18)
     - Initial release
 
