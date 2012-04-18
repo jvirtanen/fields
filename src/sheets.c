@@ -66,8 +66,9 @@ static void sheets_record_finish(struct sheets_record *, char *);
 static int sheets_settings_check(const struct sheets_settings *);
 static sheets_parse_fn *sheets_settings_parser(const struct sheets_settings *);
 
-static int sheets_parse_fast(struct sheets_reader *, struct sheets_record *);
-static int sheets_parse_full(struct sheets_reader *, struct sheets_record *);
+static int sheets_parse_unquoted(struct sheets_reader *,
+    struct sheets_record *);
+static int sheets_parse_quoted(struct sheets_reader *, struct sheets_record *);
 static int sheets_parse_cr(struct sheets_reader *, struct sheets_record *,
     const char *, char *);
 static int sheets_parse_lf(struct sheets_reader *, struct sheets_record *,
@@ -407,9 +408,9 @@ static sheets_parse_fn *
 sheets_settings_parser(const struct sheets_settings *settings)
 {
     if (settings->quote != '\0')
-        return &sheets_parse_full;
+        return &sheets_parse_quoted;
     else
-        return &sheets_parse_fast;
+        return &sheets_parse_unquoted;
 }
 
 /*
@@ -418,7 +419,7 @@ sheets_settings_parser(const struct sheets_settings *settings)
  */
 
 static int
-sheets_parse_fast(struct sheets_reader *reader, struct sheets_record *record)
+sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record)
 {
     char delimiter;
 
@@ -477,7 +478,7 @@ sheets_parse_fast(struct sheets_reader *reader, struct sheets_record *record)
 }
 
 static int
-sheets_parse_full(struct sheets_reader *reader, struct sheets_record *record)
+sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
 {
     enum sheets_state state;
 
