@@ -406,7 +406,7 @@ sheets_settings_check(const struct sheets_settings *settings)
 static sheets_parse_fn *
 sheets_settings_parser(const struct sheets_settings *settings)
 {
-    if (settings->quote != '\n')
+    if (settings->quote != '\0')
         return &sheets_parse_full;
     else
         return &sheets_parse_fast;
