@@ -10,7 +10,7 @@ Features
 
   - Quoted fields
 
-  - Escape characters
+  - Escaped characters
 
   - Simple API
 
@@ -47,7 +47,7 @@ History
 -------
 
   - 0.2.0 (2012-04-18)
-    - Adds escape characters
+    - Adds escaped characters
 
   - 0.1.0 (2012-04-18)
     - Initial release
