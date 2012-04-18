@@ -10,6 +10,8 @@ Features
 
   - Quoted fields
 
+  - Escape characters
+
   - Simple API
 
   - Zero dependencies

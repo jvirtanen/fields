@@ -35,6 +35,7 @@ struct sheets_reader
     sheets_source_read_fn * source_read;
     sheets_source_free_fn * source_free;
     char                    delimiter;
+    char                    escape;
     char                    quote;
     sheets_parse_fn *       parse;
     const char *            buffer;
@@ -170,6 +171,7 @@ sheets_reader_alloc(void *source, sheets_source_read_fn *read,
     self->source_read = read;
     self->source_free = free;
     self->delimiter = settings->delimiter;
+    self->escape = settings->escape;
     self->quote = settings->quote;
     self->parse = sheets_settings_parser(settings);
     self->buffer = NULL;
@@ -383,6 +385,15 @@ sheets_settings_check(const struct sheets_settings *settings)
     if (settings->delimiter == '\r')
         return SHEETS_FAILURE;
 
+    if (settings->escape == '\n')
+        return SHEETS_FAILURE;
+
+    if (settings->escape == '\r')
+        return SHEETS_FAILURE;
+
+    if (settings->escape == settings->delimiter)
+        return SHEETS_FAILURE;
+
     if (settings->quote == '\n')
         return SHEETS_FAILURE;
 
@@ -390,6 +401,9 @@ sheets_settings_check(const struct sheets_settings *settings)
         return SHEETS_FAILURE;
 
     if (settings->quote == settings->delimiter)
+        return SHEETS_FAILURE;
+
+    if ((settings->quote != '\0') && (settings->escape != '\0'))
         return SHEETS_FAILURE;
 
     if (settings->file_buffer_size < SHEETS_MINIMUM_FILE_BUFFER_SIZE)
@@ -422,6 +436,9 @@ static int
 sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record)
 {
     char delimiter;
+    char escape;
+
+    bool escaped;
 
     const char *rp;
     const char *rq;
@@ -430,6 +447,9 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
     const char *wq;
 
     delimiter = reader->delimiter;
+    escape = reader->escape;
+
+    escaped = false;
 
     rp = reader->cursor;
     rq = sheets_reader_end(reader);
@@ -441,22 +461,26 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
 
     while (true) {
         while ((rp != rq) && (wp != wq)) {
-            switch (*rp) {
-            case '\n':
-                return sheets_parse_lf(reader, record, rp, wp);
-            case '\r':
-                return sheets_parse_cr(reader, record, rp, wp);
-            default:
-                if (*rp == delimiter) {
-                    *wp++ = '\0';
-                    rp++;
-                    if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
-                }
-                else
-                    *wp++ = *rp++;
-                break;
+            if (escaped) {
+                escaped = false;
+                *wp++ = *rp++;
             }
+            else if ((*rp == escape) && (escape != '\0')) {
+                rp++;
+                escaped = true;
+            }
+            else if (*rp == '\n')
+                return sheets_parse_lf(reader, record, rp, wp);
+            else if (*rp == '\r')
+                return sheets_parse_cr(reader, record, rp, wp);
+            else if (*rp == delimiter) {
+                *wp++ = '\0';
+                rp++;
+                if (sheets_record_push(record, wp) != 0)
+                    return sheets_parse_fail(reader, record);
+            }
+            else
+                *wp++ = *rp++;
         }
 
         if (wp == wq)

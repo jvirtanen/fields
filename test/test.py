@@ -67,6 +67,7 @@ class CSVTest(TestCase):
     def setUp(self):
         self.d = ','
         self.q = '"'
+        self.e = None
 
 
 class TSVTest(TestCase):
@@ -89,6 +90,15 @@ class TSVTest(TestCase):
     def test_empty_line(self):
         self.assert_equals('\n', [['']])
 
+    def test_escaped_delimiter(self):
+        self.assert_equals('a\\\tb\nc', [['a\tb'], ['c']])
+
+    def test_escaped_lf(self):
+        self.assert_equals('a\tb\\\nc', [['a', 'b\nc']])
+
+    def test_terminating_escape(self):
+        self.assert_equals('a\tb\nc\\', [['a', 'b'], ['c']])
+
     def test_csv(self):
         self.assert_equals('a,b\nc\n', [['a,b'], ['c']])
 
@@ -97,6 +107,11 @@ class TSVTest(TestCase):
 
     def test_too_many_fields(self):
         self.assert_error('\t'.join('a' * 16), 'sheets_reader_error')
+
+    def setUp(self):
+        self.d = '\t'
+        self.e = '\\'
+        self.q = None
 
 
 if __name__ == "__main__":

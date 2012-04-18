@@ -18,6 +18,7 @@ static void die(const char *);
 
 struct sheets_settings settings = {
     .delimiter = '\t',
+    .escape = '\0',
     .quote = '\0',
     .file_buffer_size = 4096,
     .record_buffer_size = 1024,
@@ -33,13 +34,16 @@ main(int argc, char *argv[])
 
     opterr = 0;
 
-    while ((ch = getopt(argc, argv, "bd:f:q:r:")) != -1) {
+    while ((ch = getopt(argc, argv, "bd:e:f:q:r:")) != -1) {
         switch (ch) {
         case 'b':
             buffer = true;
             break;
         case 'd':
             settings.delimiter = optarg[0];
+            break;
+        case 'e':
+            settings.escape = optarg[0];
             break;
         case 'f':
             settings.record_max_fields = atoi(optarg);

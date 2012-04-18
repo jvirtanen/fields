@@ -12,18 +12,20 @@ def dump_table(table):
     return '\n'.join(handle_record(record, fields) for (record, fields) in
         enumerate(table))
 
-def dump_text(text, b=False, d=None, q=None):
+def dump_text(text, b=False, d=None, e=None, q=None):
     with NamedTemporaryFile() as outfile:
         outfile.write(text)
         outfile.flush()
-        return _dump(outfile.name, b, d, q).strip('\n')
+        return _dump(outfile.name, b, d, e, q).strip('\n')
 
-def _dump(filename, b=False, d=None, q=None):
+def _dump(filename, b=False, d=None, e=None, q=None):
     args = ['./dump']
     if b:
         args.append('-b')
     if d:
         args.append('-d%s' % d)
+    if e:
+        args.append('-e%s' % e)
     if q:
         args.append('-q%s' % q)
     args.append(filename)

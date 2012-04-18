@@ -183,8 +183,16 @@ struct sheets_settings
     char    delimiter;
 
     /*
+     * The escape character. Must not be `\n`, `\r` or the delimiter character.
+     * Set to `\0` to disable escaping. If escaping is enabled, quoting must be
+     * disabled.
+     */
+    char    escape;
+
+    /*
      * The quote character. Must not be `\n`, `\r` or the delimiter character.
-     * Set to `\0` to disable quoting.
+     * Set to `\0` to disable quoting. If quoting is enabled, escaping must be
+     * disabled.
      */
     char    quote;
 

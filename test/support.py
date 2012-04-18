@@ -17,11 +17,7 @@ class TestCase(unittest.TestCase):
         self.assertEquals(self.__dump_text(text, b), expected)
 
     def __dump_text(self, text, b):
-        return dump_text(text, b, self.d, self.q)
-
-    def setUp(self):
-        self.d = None
-        self.q = None
+        return dump_text(text, b, self.d, self.e, self.q)
 
 
 def main():
