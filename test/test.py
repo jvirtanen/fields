@@ -24,7 +24,8 @@ class CSVTest(TestCase):
         self.assert_equals('\n', [['']])
 
     def test_quote(self):
-        self.assert_error('a"b,c', 'sheets_reader_error')
+        self.assert_error('a"b,c', 'sheets_reader_error: %d' %
+            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
 
     def test_quoted(self):
         self.assert_equals('"a","b"\n"c"\n', [['a', 'b'], ['c']])
@@ -50,10 +51,12 @@ class CSVTest(TestCase):
         self.assert_equals('a,b\n"c', [['a', 'b'], ['c']])
 
     def test_quoted_with_preceding_garbage(self):
-        self.assert_error('a"b",c', 'sheets_reader_error')
+        self.assert_error('a"b",c', 'sheets_reader_error: %d' %
+            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
 
     def test_quoted_with_subsequent_garbage(self):
-        self.assert_error('"a"b,c', 'sheets_reader_error')
+        self.assert_error('"a"b,c', 'sheets_reader_error: %d' %
+            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
 
     def test_tsv(self):
         self.assert_equals('a\tb\nc\n', [['a\tb'], ['c']])
@@ -62,7 +65,8 @@ class CSVTest(TestCase):
         self.assert_equals(','.join('a' * 15), [['a'] * 15])
 
     def test_too_many_fields(self):
-        self.assert_error(','.join('a' * 16), 'sheets_reader_error')
+        self.assert_error(','.join('a' * 16), 'sheets_reader_error: %d' %
+            self.SHEETS_ERROR_TOO_MANY_FIELDS)
 
     def setUp(self):
         self.d = ','
@@ -106,7 +110,8 @@ class TSVTest(TestCase):
         self.assert_equals('\t'.join('a' * 15), [['a'] * 15])
 
     def test_too_many_fields(self):
-        self.assert_error('\t'.join('a' * 16), 'sheets_reader_error')
+        self.assert_error('\t'.join('a' * 16), 'sheets_reader_error: %d' %
+            self.SHEETS_ERROR_TOO_MANY_FIELDS)
 
     def setUp(self):
         self.d = '\t'

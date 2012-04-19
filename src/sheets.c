@@ -42,7 +42,7 @@ struct sheets_reader
     size_t                  buffer_size;
     const char *            cursor;
     char                    skip;
-    bool                    error;
+    int                     error;
 };
 
 static const char *sheets_reader_end(const struct sheets_reader *);
@@ -74,7 +74,8 @@ static int sheets_parse_cr(struct sheets_reader *, struct sheets_record *,
     const char *, char *);
 static int sheets_parse_lf(struct sheets_reader *, struct sheets_record *,
     const char *, char *);
-static int sheets_parse_fail(struct sheets_reader *, struct sheets_record *);
+static int sheets_parse_fail(struct sheets_reader *, struct sheets_record *,
+    enum sheets_error);
 static int sheets_parse_start(struct sheets_reader *, struct sheets_record *);
 static int sheets_parse_finish(struct sheets_reader *, struct sheets_record *,
     const char *, char *);
@@ -177,7 +178,7 @@ sheets_reader_alloc(void *source, sheets_source_read_fn *read,
     self->buffer = NULL;
     self->buffer_size = 0;
     self->cursor = NULL;
-    self->error = false;
+    self->error = 0;
 
     return self;
 }
@@ -205,7 +206,7 @@ sheets_reader_fill(struct sheets_reader *self)
     self->cursor = self->buffer;
 
     if (result != 0) {
-        self->error = true;
+        self->error = SHEETS_ERROR_UNREADABLE_SOURCE;
         return SHEETS_FAILURE;
     }
 
@@ -477,17 +478,20 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
                 *wp++ = '\0';
                 rp++;
                 if (sheets_record_push(record, wp) != 0)
-                    return sheets_parse_fail(reader, record);
+                    return sheets_parse_fail(reader, record,
+                        SHEETS_ERROR_TOO_MANY_FIELDS);
             }
             else
                 *wp++ = *rp++;
         }
 
         if (wp == wq)
-            return sheets_parse_fail(reader, record);
+            return sheets_parse_fail(reader, record,
+                SHEETS_ERROR_TOO_BIG_RECORD);
 
         if (sheets_reader_fill(reader) != 0)
-            return sheets_parse_fail(reader, record);
+            return sheets_parse_fail(reader, record,
+                SHEETS_ERROR_UNREADABLE_SOURCE);
 
         rp = reader->cursor;
         rq = sheets_reader_end(reader);
@@ -498,7 +502,7 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
         }
     }
 
-    return sheets_parse_fail(reader, record);
+    return sheets_parse_fail(reader, record, SHEETS_ERROR_UNEXPECTED_CHARACTER);
 }
 
 static int
@@ -536,14 +540,16 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                     rp++;
                     wp = sheets_record_pop(record);
                     if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
+                        return sheets_parse_fail(reader, record,
+                            SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_INSIDE_QUOTED_FIELD;
                 }
                 else if (*rp == delimiter) {
                     *wp++ = '\0';
                     rp++;
                     if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
+                        return sheets_parse_fail(reader, record,
+                            SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
                 else if (*rp == '\n')
                     return sheets_parse_lf(reader, record, rp, wp);
@@ -558,12 +564,14 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                 break;
             case SHEETS_STATE_INSIDE_FIELD:
                 if (*rp == quote)
-                    return sheets_parse_fail(reader, record);
+                    return sheets_parse_fail(reader, record,
+                        SHEETS_ERROR_UNEXPECTED_CHARACTER);
                 else if (*rp == delimiter) {
                     *wp++ = '\0';
                     rp++;
                     if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
+                        return sheets_parse_fail(reader, record,
+                            SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
                 else if (*rp == '\n')
                     return sheets_parse_lf(reader, record, rp, wp);
@@ -589,7 +597,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                     *wp++ = '\0';
                     rp++;
                     if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
+                        return sheets_parse_fail(reader, record,
+                            SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
                 else if (*rp == '\n')
@@ -601,14 +610,16 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                     state = SHEETS_STATE_BEYOND_QUOTED_FIELD;
                 }
                 else
-                    return sheets_parse_fail(reader, record);
+                    return sheets_parse_fail(reader, record,
+                        SHEETS_ERROR_UNEXPECTED_CHARACTER);
                 break;
             case SHEETS_STATE_BEYOND_QUOTED_FIELD:
                 if (*rp == delimiter) {
                     *wp++ = '\0';
                     rp++;
                     if (sheets_record_push(record, wp) != 0)
-                        return sheets_parse_fail(reader, record);
+                        return sheets_parse_fail(reader, record,
+                            SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
                 else if (*rp == '\n')
@@ -618,16 +629,19 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                 else if (sheets_whitespace(*rp))
                     rp++;
                 else
-                    return sheets_parse_fail(reader, record);
+                    return sheets_parse_fail(reader, record,
+                        SHEETS_ERROR_UNEXPECTED_CHARACTER);
                 break;
             }
         }
 
         if (wp == wq)
-            return sheets_parse_fail(reader, record);
+            return sheets_parse_fail(reader, record,
+                SHEETS_ERROR_TOO_BIG_RECORD);
 
         if (sheets_reader_fill(reader) != 0)
-            return sheets_parse_fail(reader, record);
+            return sheets_parse_fail(reader, record,
+                SHEETS_ERROR_UNREADABLE_SOURCE);
 
         rp = reader->cursor;
         rq = sheets_reader_end(reader);
@@ -638,7 +652,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
         }
     }
 
-    return sheets_parse_fail(reader, record);
+    return sheets_parse_fail(reader, record, SHEETS_ERROR_UNEXPECTED_CHARACTER);
 }
 
 static int
@@ -664,9 +678,10 @@ sheets_parse_lf(struct sheets_reader *reader, struct sheets_record *record,
 }
 
 static int
-sheets_parse_fail(struct sheets_reader *reader, struct sheets_record *record)
+sheets_parse_fail(struct sheets_reader *reader, struct sheets_record *record,
+    enum sheets_error error)
 {
-    reader->error = true;
+    reader->error = error;
 
     sheets_record_init(record);
 
@@ -677,12 +692,13 @@ sheets_parse_fail(struct sheets_reader *reader, struct sheets_record *record)
 static int
 sheets_parse_start(struct sheets_reader *reader, struct sheets_record *record)
 {
-    if (reader->error)
-        return sheets_parse_fail(reader, record);
+    if (reader->error != 0)
+        return sheets_parse_fail(reader, record, reader->error);
 
     if (reader->cursor == sheets_reader_end(reader)) {
         if (sheets_reader_fill(reader) != 0)
-            return sheets_parse_fail(reader, record);
+            return sheets_parse_fail(reader, record,
+                SHEETS_ERROR_UNREADABLE_SOURCE);
 
         if (reader->buffer_size == 0)
             return SHEETS_FAILURE;

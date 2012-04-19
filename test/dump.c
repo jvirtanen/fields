@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,7 @@ static FILE *fopen_or_die(const char *, const char *);
 static void fclose_or_die(FILE *);
 static void fseek_or_die(FILE *, long, int);
 static void usage(void);
-static void die(const char *);
+static void die(const char *, ...);
 
 struct sheets_settings settings = {
     .delimiter = '\t',
@@ -149,6 +150,7 @@ static void
 iterate(struct sheets_reader *reader)
 {
     struct sheets_record *record;
+    int error;
 
     record = sheets_record_alloc(&settings);
     if (record == NULL)
@@ -169,8 +171,9 @@ iterate(struct sheets_reader *reader)
         row++;
     }
 
-    if (sheets_reader_error(reader) != 0)
-        die("sheets_reader_error");
+    error = sheets_reader_error(reader);
+    if (error != 0)
+        die("sheets_reader_error: %d", error);
 
     sheets_record_free(record);
 }
@@ -209,8 +212,15 @@ usage(void)
 }
 
 static void
-die(const char *message)
+die(const char *fmt, ...)
 {
-    fprintf(stderr, "%s\n", message);
+    va_list arg;
+
+    va_start(arg, fmt);
+    vfprintf(stderr, fmt, arg);
+    va_end(arg);
+
+    fprintf(stderr, "\n");
+
     exit(EXIT_FAILURE);
 }

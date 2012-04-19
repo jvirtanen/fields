@@ -109,6 +109,14 @@ int sheets_reader_read(struct sheets_reader *, struct sheets_record *);
  */
 int sheets_reader_error(const struct sheets_reader *);
 
+enum sheets_error
+{
+    SHEETS_ERROR_TOO_BIG_RECORD = 1,
+    SHEETS_ERROR_TOO_MANY_FIELDS = 2,
+    SHEETS_ERROR_UNEXPECTED_CHARACTER = 3,
+    SHEETS_ERROR_UNREADABLE_SOURCE = 4
+};
+
 /*
  * Records
  * -------
