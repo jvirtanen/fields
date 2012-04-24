@@ -35,10 +35,10 @@ Usage
     }
 
 Sheets reads data in ASCII-compatible encoding, such as UTF-8, from a buffer
-or a file. The record separator may be either CR, LF or CRLF, and the field
+or file. The record separator may be either CR, LF or CRLF, and the field
 delimiter may be any ASCII character except CR or LF.
 
-Sheets supports two ways of embedding field delimiters and record separators
+Sheets supports two methods of embedding field delimiters and record separators
 into fields: quoting and escaping. When quoting, a field containing a field
 delimiter, record separator or quote character must be enclosed within quote
 characters. Additionally, a quote character within a field must be escaped
