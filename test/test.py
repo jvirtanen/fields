@@ -17,7 +17,7 @@ class CSVTest(TestCase):
     def test_missing_newline_at_eof(self):
         self.assert_equals('a,b\nc', [['a', 'b'], ['c']])
 
-    def test_empty(self):
+    def test_empty_source(self):
         self.assert_equals('', [])
 
     def test_empty_line(self):
@@ -88,7 +88,7 @@ class TSVTest(TestCase):
     def test_missing_newline_at_eof(self):
         self.assert_equals('a\tb\nc', [['a', 'b'], ['c']])
 
-    def test_empty(self):
+    def test_empty_source(self):
         self.assert_equals('', [])
 
     def test_empty_line(self):
