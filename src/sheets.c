@@ -63,6 +63,7 @@ static void sheets_record_init(struct sheets_record *);
 static int sheets_record_push(struct sheets_record *, char *);
 static char *sheets_record_pop(struct sheets_record *);
 static void sheets_record_finish(struct sheets_record *, char *);
+static void sheets_record_normalize(struct sheets_record *);
 
 static int sheets_settings_check(const struct sheets_settings *);
 static sheets_parse_fn *sheets_settings_parser(const struct sheets_settings *);
@@ -352,6 +353,21 @@ static void
 sheets_record_finish(struct sheets_record *self, char *cursor)
 {
     self->fields[self->num_fields] = cursor;
+
+    sheets_record_normalize(self);
+}
+
+static void
+sheets_record_normalize(struct sheets_record *self)
+{
+    if (sheets_record_size(self) == 1) {
+        struct sheets_field field;
+
+        sheets_record_field(self, 0, &field);
+
+        if (field.length == 0)
+            sheets_record_pop(self);
+    }
 }
 
 /*
