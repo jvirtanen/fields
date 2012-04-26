@@ -23,6 +23,9 @@ class CSVTest(TestCase):
     def test_empty_line(self):
         self.assert_equals('\n', [])
 
+    def test_empty_record(self):
+        self.assert_equals('a,b\n\nc', [['a', 'b'], [], ['c']])
+
     def test_quote(self):
         self.assert_error('a"b,c', 'sheets_reader_error: %d' %
             self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
@@ -93,6 +96,9 @@ class TSVTest(TestCase):
 
     def test_empty_line(self):
         self.assert_equals('\n', [])
+
+    def test_empty_record(self):
+        self.assert_equals('a\tb\n\nc', [['a', 'b'], [], ['c']])
 
     def test_escaped_delimiter(self):
         self.assert_equals('a\\\tb\nc', [['a\tb'], ['c']])

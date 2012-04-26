@@ -9,8 +9,9 @@ def dump_table(table):
             return '%d:%d:%d %s' % (record, column, len(field), field)
         return '\n'.join(handle_field(column, field) for (column, field) in
             enumerate(fields))
-    return '\n'.join(handle_record(record, fields) for (record, fields) in
+    dump = '\n'.join(handle_record(record, fields) for (record, fields) in
         enumerate(table))
+    return '\n'.join(filter(lambda s: s != '', dump.splitlines()))
 
 def dump_text(text, b=False, d=None, e=None, q=None):
     with NamedTemporaryFile() as outfile:
