@@ -157,8 +157,8 @@ sheets_read_file(FILE *file, const struct sheets_settings *settings)
 }
 
 struct sheets_reader *
-sheets_reader_alloc(void *source, sheets_source_read_fn *read,
-    sheets_source_free_fn *free, const struct sheets_settings *settings)
+sheets_reader_alloc(void *source, sheets_source_read_fn *read_fn,
+    sheets_source_free_fn *free_fn, const struct sheets_settings *settings)
 {
     struct sheets_reader *self;
 
@@ -170,8 +170,8 @@ sheets_reader_alloc(void *source, sheets_source_read_fn *read,
         return NULL;
 
     self->source = source;
-    self->source_read = read;
-    self->source_free = free;
+    self->source_read = read_fn;
+    self->source_free = free_fn;
     self->delimiter = settings->delimiter;
     self->escape = settings->escape;
     self->quote = settings->quote;

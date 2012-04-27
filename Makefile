@@ -7,6 +7,7 @@ CFLAGS += -Isrc
 CFLAGS += -O3
 CFLAGS += -Wall
 CFLAGS += -Wextra
+CFLAGS += -Wshadow
 CFLAGS += -pedantic
 CFLAGS += -std=c99
 
