@@ -66,6 +66,9 @@ Include `src/sheets.c` and `src/sheets.h` into your application.
 History
 -------
 
+  - 0.3.1 (2012-04-28)
+    - Fixes handling of empty records
+
   - 0.3.0 (2012-04-21)
     - Adds error constants
 
