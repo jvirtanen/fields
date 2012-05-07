@@ -67,7 +67,7 @@ History
 -------
 
   - 0.3.2 (2014-05-07)
-    - Enables '-Wswitch-default' and '-Wswitch-enum' warnings
+    - Enables `-Wswitch-default` and `-Wswitch-enum` warnings
 
   - 0.3.1 (2012-04-28)
     - Fixes handling of empty records
