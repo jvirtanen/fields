@@ -55,7 +55,7 @@ main(int argc, char *argv[])
         case 'r':
             settings.record_buffer_size = atoi(optarg);
             break;
-        case '?':
+        default:
             usage();
         }
     }

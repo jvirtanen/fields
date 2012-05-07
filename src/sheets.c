@@ -648,7 +648,11 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                     return sheets_parse_fail(reader, record,
                         SHEETS_ERROR_UNEXPECTED_CHARACTER);
                 break;
+            default:
+                return sheets_parse_fail(reader, record,
+                    SHEETS_ERROR_UNEXPECTED_CHARACTER);
             }
+
         }
 
         if (wp == wq)
