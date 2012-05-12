@@ -17,8 +17,14 @@ OBJS += src/sheets.o
 OBJS += test/dump.o
 PROG := test/dump
 
-E := @echo
-Q := @
+V =
+ifeq ($(strip $(V)),)
+	E := @echo
+	Q := @
+else
+	E := @\#
+	Q :=
+endif
 
 all: test
 .PHONY: all
