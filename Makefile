@@ -37,7 +37,7 @@ clean:
 
 test: $(PROG)
 	$(E) "  TEST     "
-	$(Q) cd test; $(PYTHON) test.py
+	$(Q) cd test; $(PYTHON) test_sheets.py
 .PHONY: test
 
 $(PROG): $(OBJS)
