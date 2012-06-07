@@ -1,6 +1,5 @@
 import subprocess
-
-from tempfile import NamedTemporaryFile
+import tempfile
 
 
 def dump_table(table):
@@ -14,7 +13,7 @@ def dump_table(table):
     return '\n'.join(filter(lambda s: s != '', dump.splitlines()))
 
 def dump_text(text, b=False, d=None, e=None, q=None):
-    with NamedTemporaryFile() as outfile:
+    with tempfile.NamedTemporaryFile() as outfile:
         outfile.write(text)
         outfile.flush()
         return _dump(outfile.name, b, d, e, q).strip('\n')
