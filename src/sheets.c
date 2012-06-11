@@ -106,6 +106,7 @@ enum sheets_state {
     SHEETS_STATE_BEYOND_QUOTED_FIELD
 };
 
+static inline bool sheets_crlf(char);
 static inline bool sheets_whitespace(char);
 
 /*
@@ -484,7 +485,7 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
                 rp++;
                 escaped = true;
             }
-            else if ((*rp == '\n') || (*rp == '\r'))
+            else if (sheets_crlf(*rp))
                 return sheets_parse_crlf(reader, record, rp, wp);
             else if (*rp == delimiter) {
                 *wp++ = '\0';
@@ -563,7 +564,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                         return sheets_parse_fail(reader, record,
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
-                else if ((*rp == '\n') || (*rp == '\r'))
+                else if (sheets_crlf(*rp))
                     return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp))
                     *wp++ = *rp++;
@@ -583,7 +584,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                         return sheets_parse_fail(reader, record,
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
-                else if ((*rp == '\n') || (*rp == '\r'))
+                else if (sheets_crlf(*rp))
                     return sheets_parse_crlf(reader, record, rp, wp);
                 else
                     *wp++ = *rp++;
@@ -609,7 +610,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
-                else if ((*rp == '\n') || (*rp == '\r'))
+                else if (sheets_crlf(*rp))
                     return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp)) {
                     rp++;
@@ -628,7 +629,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
-                else if ((*rp == '\n') || (*rp == '\r'))
+                else if (sheets_crlf(*rp))
                     return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp))
                     rp++;
@@ -820,6 +821,12 @@ sheets_file_free(void *source)
  * Utilities
  * =========
  */
+
+static inline bool
+sheets_crlf(char ch)
+{
+    return (ch == '\n') || (ch == '\r');
+}
 
 static inline bool
 sheets_whitespace(char ch)
