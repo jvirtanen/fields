@@ -31,8 +31,8 @@ all: test
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) rm -f $(OBJS) $(PROG)
-	$(Q) find . -name *.pyc | xargs rm -f
+	$(Q) $(RM) $(OBJS) $(PROG)
+	$(Q) find . -name *.pyc | xargs $(RM)
 .PHONY: clean
 
 test: $(PROG)
