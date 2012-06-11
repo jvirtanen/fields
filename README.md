@@ -60,7 +60,7 @@ See `src/sheets.h` for reference documentation.
 Installation
 ------------
 
-Include `src/sheets.c` and `src/sheets.h` into your application.
+Include `include/sheets.h` and `src/sheets.c` into your application.
 
 
 History

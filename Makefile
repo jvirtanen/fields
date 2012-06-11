@@ -3,7 +3,7 @@ LD := $(CC)
 
 PYTHON ?= python
 
-CFLAGS += -Isrc
+CFLAGS += -Iinclude
 CFLAGS += -O3
 CFLAGS += -Wall
 CFLAGS += -Wextra
