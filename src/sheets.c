@@ -71,9 +71,7 @@ static sheets_parse_fn *sheets_settings_parser(const struct sheets_settings *);
 static int sheets_parse_unquoted(struct sheets_reader *,
     struct sheets_record *);
 static int sheets_parse_quoted(struct sheets_reader *, struct sheets_record *);
-static int sheets_parse_cr(struct sheets_reader *, struct sheets_record *,
-    const char *, char *);
-static int sheets_parse_lf(struct sheets_reader *, struct sheets_record *,
+static int sheets_parse_crlf(struct sheets_reader *, struct sheets_record *,
     const char *, char *);
 static int sheets_parse_fail(struct sheets_reader *, struct sheets_record *,
     enum sheets_error);
@@ -486,10 +484,8 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
                 rp++;
                 escaped = true;
             }
-            else if (*rp == '\n')
-                return sheets_parse_lf(reader, record, rp, wp);
-            else if (*rp == '\r')
-                return sheets_parse_cr(reader, record, rp, wp);
+            else if ((*rp == '\n') || (*rp == '\r'))
+                return sheets_parse_crlf(reader, record, rp, wp);
             else if (*rp == delimiter) {
                 *wp++ = '\0';
                 rp++;
@@ -567,10 +563,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                         return sheets_parse_fail(reader, record,
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
-                else if (*rp == '\n')
-                    return sheets_parse_lf(reader, record, rp, wp);
-                else if (*rp == '\r')
-                    return sheets_parse_cr(reader, record, rp, wp);
+                else if ((*rp == '\n') || (*rp == '\r'))
+                    return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp))
                     *wp++ = *rp++;
                 else {
@@ -589,10 +583,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                         return sheets_parse_fail(reader, record,
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                 }
-                else if (*rp == '\n')
-                    return sheets_parse_lf(reader, record, rp, wp);
-                else if (*rp == '\r')
-                    return sheets_parse_cr(reader, record, rp, wp);
+                else if ((*rp == '\n') || (*rp == '\r'))
+                    return sheets_parse_crlf(reader, record, rp, wp);
                 else
                     *wp++ = *rp++;
                 break;
@@ -617,10 +609,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
-                else if (*rp == '\n')
-                    return sheets_parse_lf(reader, record, rp, wp);
-                else if (*rp == '\r')
-                    return sheets_parse_cr(reader, record, rp, wp);
+                else if ((*rp == '\n') || (*rp == '\r'))
+                    return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp)) {
                     rp++;
                     state = SHEETS_STATE_BEYOND_QUOTED_FIELD;
@@ -638,10 +628,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                             SHEETS_ERROR_TOO_MANY_FIELDS);
                     state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
-                else if (*rp == '\n')
-                    return sheets_parse_lf(reader, record, rp, wp);
-                else if (*rp == '\r')
-                    return sheets_parse_cr(reader, record, rp, wp);
+                else if ((*rp == '\n') || (*rp == '\r'))
+                    return sheets_parse_crlf(reader, record, rp, wp);
                 else if (sheets_whitespace(*rp))
                     rp++;
                 else
@@ -676,21 +664,12 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
 }
 
 static int
-sheets_parse_cr(struct sheets_reader *reader, struct sheets_record *record,
+sheets_parse_crlf(struct sheets_reader *reader, struct sheets_record *record,
     const char *rp, char *wp)
 {
-    *wp++ = '\0';
-    rp++;
+    if (*rp == '\r')
+        reader->skip = '\n';
 
-    reader->skip = '\n';
-
-    return sheets_parse_finish(reader, record, rp, wp);
-}
-
-static int
-sheets_parse_lf(struct sheets_reader *reader, struct sheets_record *record,
-    const char *rp, char *wp)
-{
     *wp++ = '\0';
     rp++;
 
