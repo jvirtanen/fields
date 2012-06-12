@@ -53,7 +53,7 @@ reads data that is in compliance with [RFC 4180][]. Given the field delimiter
 is set to HT and quoting and escaping are disabled, Sheets reads data that is
 in compliance with the [text/tab-separated-values][TSV] MIME type.
 
-See `src/sheets.h` for reference documentation.
+See `include/sheets.h` for reference documentation.
 
   [RFC 4180]: http://tools.ietf.org/html/rfc4180
   [TSV]:      http://www.iana.org/assignments/media-types/text/tab-separated-values
