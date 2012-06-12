@@ -28,6 +28,8 @@ file = fopen("example.csv", "rb");
 reader = sheets_read_file(file, &sheets_csv);
 record = sheets_record_alloc(&sheets_csv);
 
+struct sheets_field field;
+
 while (sheets_reader_read(reader, record) == 0) {
     for (unsigned i = 0; i < sheets_record_size(record); i++) {
         sheets_record_field(record, i, &field);
