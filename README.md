@@ -22,17 +22,19 @@ Features
 Usage
 -----
 
-    file = fopen("example.csv", "rb");
+```c
+file = fopen("example.csv", "rb");
 
-    reader = sheets_read_file(file, &sheets_csv);
-    record = sheets_record_alloc(&sheets_csv);
+reader = sheets_read_file(file, &sheets_csv);
+record = sheets_record_alloc(&sheets_csv);
 
-    while (sheets_reader_read(reader, record) == 0) {
-        for (unsigned i = 0; i < sheets_record_size(record); i++) {
-            sheets_record_field(record, i, &field);
-            puts(field.value);
-        }
+while (sheets_reader_read(reader, record) == 0) {
+    for (unsigned i = 0; i < sheets_record_size(record); i++) {
+        sheets_record_field(record, i, &field);
+        puts(field.value);
     }
+}
+```
 
 Sheets reads data in ASCII-compatible encoding, such as UTF-8, from a buffer
 or file. The record separator may be either CR, LF or CRLF, and the field
