@@ -70,6 +70,9 @@ Include `include/sheets.h` and `src/sheets.c` into your application.
 History
 -------
 
+  - 0.3.3 (2012-06-13)
+    - Fixes an uninitialized value in `sheets_reader_alloc`
+
   - 0.3.2 (2012-05-07)
     - Enables `-Wswitch-default` and `-Wswitch-enum` warnings
 
