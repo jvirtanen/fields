@@ -178,6 +178,7 @@ sheets_reader_alloc(void *source, sheets_source_read_fn *read_fn,
     self->buffer = NULL;
     self->buffer_size = 0;
     self->cursor = NULL;
+    self->skip = '\0';
     self->error = 0;
 
     return self;
