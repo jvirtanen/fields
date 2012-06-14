@@ -50,10 +50,11 @@ with another quote character. When escaping, any character preceded by the
 escape character is interpreted literally. The quote character or escape
 character may be any ASCII character except the field delimiter, CR or LF.
 
-Given the field delimiter is set to `,` and the quote character to `"`, Sheets
-reads data that is in compliance with [RFC 4180][]. Given the field delimiter
-is set to HT and quoting and escaping are disabled, Sheets reads data that is
-in compliance with the [text/tab-separated-values][TSV] MIME type.
+Given the field delimiter is set to `,` and the quote character to `"`
+(built-in configuration `sheets_csv`), Sheets reads data that is in compliance
+with [RFC 4180][]. Given the field delimiter is set to HT and quoting and
+escaping are disabled (built-in configuration `sheets_tsv`), Sheets reads data
+that is in compliance with the [text/tab-separated-values][TSV] MIME type.
 
 See `include/sheets.h` for reference documentation.
 
