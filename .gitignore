@@ -1,3 +1,4 @@
 *.o
 *.pyc
+/libsheets.so
 /test/dump

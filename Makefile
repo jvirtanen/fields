@@ -10,6 +10,7 @@ CFLAGS += -Wextra
 CFLAGS += -Wshadow
 CFLAGS += -Wswitch-default
 CFLAGS += -Wswitch-enum
+CFLAGS += -fPIC
 CFLAGS += -pedantic
 CFLAGS += -std=c99
 
@@ -17,6 +18,8 @@ OBJS += src/sheets.o
 OBJS += src/sheets_posix.o
 OBJS += test/dump.o
 PROG := test/dump
+
+LIB := libsheets.so
 
 V =
 ifeq ($(strip $(V)),)
@@ -32,14 +35,18 @@ all: test
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(OBJS) $(PROG)
+	$(Q) $(RM) $(OBJS) $(LIB) $(PROG)
 	$(Q) find . -name *.pyc | xargs $(RM)
 .PHONY: clean
 
-test: $(PROG)
+test: $(LIB) $(PROG)
 	$(E) "  TEST     "
 	$(Q) cd test; $(PYTHON) test_sheets.py
 .PHONY: test
+
+$(LIB): $(OBJS)
+	$(E) "  LINK     " $@
+	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
 
 $(PROG): $(OBJS)
 	$(E) "  LINK     " $@
