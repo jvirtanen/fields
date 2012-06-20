@@ -14,6 +14,7 @@ CFLAGS += -pedantic
 CFLAGS += -std=c99
 
 OBJS += src/sheets.o
+OBJS += src/sheets_posix.o
 OBJS += test/dump.o
 PROG := test/dump
 
