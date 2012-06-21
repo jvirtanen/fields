@@ -84,6 +84,9 @@ class CSVTest(TestCase):
         self.assert_error('"a"b,c', 'sheets_reader_error: %d' %
             self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
 
+    def test_quoted_among_non_quoted(self):
+        self.assert_equals('a,"b",c', [['a', 'b', 'c']])
+
     def test_tsv(self):
         self.assert_equals('a\tb\nc\n', [['a\tb'], ['c']])
 

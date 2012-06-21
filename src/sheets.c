@@ -584,6 +584,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
                     if (sheets_record_push(record, wp) != 0)
                         return sheets_parse_fail(reader, record,
                             SHEETS_ERROR_TOO_MANY_FIELDS);
+                    state = SHEETS_STATE_MAYBE_INSIDE_FIELD;
                 }
                 else if (sheets_crlf(*rp))
                     return sheets_parse_crlf(reader, record, rp, wp);
