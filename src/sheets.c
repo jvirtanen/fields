@@ -65,7 +65,6 @@ static char *sheets_record_pop(struct sheets_record *);
 static void sheets_record_finish(struct sheets_record *, char *);
 static void sheets_record_normalize(struct sheets_record *);
 
-static int sheets_settings_check(const struct sheets_settings *);
 static sheets_parse_fn *sheets_settings_parser(const struct sheets_settings *);
 
 static int sheets_parse_unquoted(struct sheets_reader *,
@@ -393,7 +392,7 @@ const struct sheets_settings sheets_tsv =
     .record_max_fields = SHEETS_DEFAULT_RECORD_MAX_FIELDS
 };
 
-static int
+int
 sheets_settings_check(const struct sheets_settings *settings)
 {
     if (settings->delimiter == '\n')
