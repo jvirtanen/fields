@@ -107,9 +107,18 @@ int sheets_reader_read(struct sheets_reader *, struct sheets_record *);
  *
  * - reader: the reader object
  *
- * Returns non-zero if the reader is in error state. Otherwise returns zero.
+ * Returns an error code if the reader is in error state. Otherwise returns zero.
  */
 int sheets_reader_error(const struct sheets_reader *);
+
+/*
+ * Get a string representation of an error code.
+ *
+ * error: an error code
+ *
+ * Returns a string representation of the error code.
+ */
+const char *sheets_reader_strerror(int);
 
 enum sheets_reader_error
 {

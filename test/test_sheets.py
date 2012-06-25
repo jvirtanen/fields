@@ -6,11 +6,6 @@ import unittest
 
 class TestCase(unittest.TestCase):
 
-    SHEETS_ERROR_TOO_BIG_RECORD = 1
-    SHEETS_ERROR_TOO_MANY_FIELDS = 2
-    SHEETS_ERROR_UNEXPECTED_CHARACTER = 3
-    SHEETS_ERROR_UNREADABLE_SOURCE = 4
-
     def assert_equals(self, text, table):
         self.__assert_equals(text, dump.dump_table(table), b=False)
         self.__assert_equals(text, dump.dump_table(table), b=True)
@@ -50,8 +45,7 @@ class CSVTest(TestCase):
         self.assert_equals('a,b\n\nc', [['a', 'b'], [], ['c']])
 
     def test_quote(self):
-        self.assert_error('a"b,c', 'sheets_reader_error: %d' %
-            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
+        self.assert_error('a"b,c', 'sheets_reader_error: Unexpected character')
 
     def test_quoted(self):
         self.assert_equals('"a","b"\n"c"\n', [['a', 'b'], ['c']])
@@ -77,12 +71,12 @@ class CSVTest(TestCase):
         self.assert_equals('a,b\n"c', [['a', 'b'], ['c']])
 
     def test_quoted_with_preceding_garbage(self):
-        self.assert_error('a"b",c', 'sheets_reader_error: %d' %
-            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
+        self.assert_error('a"b",c',
+            'sheets_reader_error: Unexpected character')
 
     def test_quoted_with_subsequent_garbage(self):
-        self.assert_error('"a"b,c', 'sheets_reader_error: %d' %
-            self.SHEETS_ERROR_UNEXPECTED_CHARACTER)
+        self.assert_error('"a"b,c',
+            'sheets_reader_error: Unexpected character')
 
     def test_quoted_among_non_quoted(self):
         self.assert_equals('a,"b",c', [['a', 'b', 'c']])
@@ -94,8 +88,8 @@ class CSVTest(TestCase):
         self.assert_equals(','.join('a' * 15), [['a'] * 15])
 
     def test_too_many_fields(self):
-        self.assert_error(','.join('a' * 16), 'sheets_reader_error: %d' %
-            self.SHEETS_ERROR_TOO_MANY_FIELDS)
+        self.assert_error(','.join('a' * 16),
+            'sheets_reader_error: Too many fields')
 
     def setUp(self):
         self.d = ','
@@ -142,8 +136,8 @@ class TSVTest(TestCase):
         self.assert_equals('\t'.join('a' * 15), [['a'] * 15])
 
     def test_too_many_fields(self):
-        self.assert_error('\t'.join('a' * 16), 'sheets_reader_error: %d' %
-            self.SHEETS_ERROR_TOO_MANY_FIELDS)
+        self.assert_error('\t'.join('a' * 16),
+            'sheets_reader_error: Too many fields')
 
     def setUp(self):
         self.d = '\t'

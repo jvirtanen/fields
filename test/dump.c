@@ -173,7 +173,7 @@ iterate(struct sheets_reader *reader)
 
     error = sheets_reader_error(reader);
     if (error != 0)
-        die("sheets_reader_error: %d", error);
+        die("sheets_reader_error: %s", sheets_reader_strerror(error));
 
     sheets_record_free(record);
 }

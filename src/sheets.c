@@ -246,6 +246,27 @@ sheets_reader_error(const struct sheets_reader *self)
     return self->error;
 }
 
+const char *
+sheets_reader_strerror(int error)
+{
+    switch (error) {
+    case SHEETS_READER_ERROR_TOO_BIG_RECORD:
+        return "Too big record";
+    case SHEETS_READER_ERROR_TOO_MANY_FIELDS:
+        return "Too many fields";
+    case SHEETS_READER_ERROR_UNEXPECTED_CHARACTER:
+        return "Unexpected character";
+    case SHEETS_READER_ERROR_UNREADABLE_SOURCE:
+        return "Unreadable source";
+    case 0:
+        return "";
+    default:
+        break;
+    }
+
+    return "Unknown error";
+}
+
 /*
  * Records
  * =======
