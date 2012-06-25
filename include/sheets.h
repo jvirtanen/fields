@@ -249,6 +249,15 @@ struct sheets_settings
  */
 int sheets_settings_error(const struct sheets_settings *);
 
+/*
+ * Get a string representation of an error code.
+ *
+ * - error: an error code
+ *
+ * Returns a string representation of the error code.
+ */
+const char *sheets_settings_strerror(int);
+
 enum sheets_settings_error
 {
     SHEETS_SETTINGS_ERROR_DELIMITER = 1,

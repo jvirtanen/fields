@@ -15,6 +15,7 @@ static FILE *fopen_or_die(const char *, const char *);
 static void fclose_or_die(FILE *);
 static void fseek_or_die(FILE *, long, int);
 static void usage(void);
+static void die_at_reader(const char *); 
 static void die(const char *, ...);
 
 struct sheets_settings settings = {
@@ -125,7 +126,7 @@ iterate_buffer(const char *buffer, size_t buffer_size)
 
     reader = sheets_read_buffer(buffer, buffer_size, &settings);
     if (reader == NULL)
-        die("sheets_read_buffer");
+        die_at_reader("sheets_read_buffer");
 
     iterate(reader);
 
@@ -139,7 +140,7 @@ iterate_file(FILE *file)
 
     reader = sheets_read_file(file, &settings);
     if (reader == NULL)
-        die("sheets_read_file");
+        die_at_reader("sheets_read_file");
 
     iterate(reader);
 
@@ -209,6 +210,18 @@ usage(void)
 {
     fprintf(stderr, "Usage: dump [OPTIONS] FILE\n");
     exit(EXIT_FAILURE);
+}
+
+static void
+die_at_reader(const char *name)
+{
+    int result;
+
+    result = sheets_settings_error(&settings);
+    if (result != 0)
+        die("%s: %s", name, sheets_settings_strerror(result));
+    else
+        die(name);
 }
 
 static void

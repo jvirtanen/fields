@@ -455,6 +455,31 @@ sheets_settings_error(const struct sheets_settings *settings)
     return 0;
 }
 
+const char *
+sheets_settings_strerror(int error)
+{
+    switch (error) {
+    case SHEETS_SETTINGS_ERROR_DELIMITER:
+        return "Bad field delimiter";
+    case SHEETS_SETTINGS_ERROR_ESCAPE:
+        return "Bad escape character";
+    case SHEETS_SETTINGS_ERROR_QUOTE:
+        return "Bad quote character";
+    case SHEETS_SETTINGS_ERROR_FILE_BUFFER_SIZE:
+        return "Too low file buffer size";
+    case SHEETS_SETTINGS_ERROR_RECORD_BUFFER_SIZE:
+        return "Too low record buffer size";
+    case SHEETS_SETTINGS_ERROR_RECORD_MAX_FIELDS:
+        return "Too low maximum for fields in record";
+    case 0:
+        return "";
+    default:
+        break;
+    }
+
+    return "Unknown error";
+}
+
 static sheets_parse_fn *
 sheets_settings_parser(const struct sheets_settings *settings)
 {
