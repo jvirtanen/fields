@@ -61,7 +61,7 @@ struct sheets_settings;
 
 /*
  * Allocate a reader that reads from the specified buffer. The operation fails
- * if the settings check fails.
+ * if the settings are erroneous.
  *
  * - buffer:      a buffer
  * - buffer_size: size of the buffer
@@ -74,7 +74,7 @@ struct sheets_reader *sheets_read_buffer(const char *, size_t,
 
 /*
  * Allocate a reader that reads from the specified file. The operation fails
- * if the settings check fails.
+ * if the settings are erroneous.
  *
  * - file:     a file
  * - settings: the settings for the reader
@@ -232,13 +232,23 @@ struct sheets_settings
 #define SHEETS_DEFAULT_RECORD_MAX_FIELDS (1023)
 
 /*
- * Check the settings.
+ * Check whether the settings are erroneous.
  *
  * - settings: the settings
  *
- * If successful, returns zero. Otherwise returns non-zero.
+ * Returns non-zero if the settings are erroneous. Otherwise returns zero.
  */
-int sheets_settings_check(const struct sheets_settings *);
+int sheets_settings_error(const struct sheets_settings *);
+
+enum sheets_settings_error
+{
+    SHEETS_SETTINGS_ERROR_DELIMITER = 1,
+    SHEETS_SETTINGS_ERROR_ESCAPE = 2,
+    SHEETS_SETTINGS_ERROR_QUOTE = 3,
+    SHEETS_SETTINGS_ERROR_FILE_BUFFER_SIZE = 4,
+    SHEETS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 5,
+    SHEETS_SETTINGS_ERROR_RECORD_MAX_FIELDS = 6
+};
 
 /*
  * Custom Sources
@@ -267,7 +277,7 @@ typedef void sheets_source_free_fn(void *);
 
 /*
  * Allocate a reader for the specified source. The operation fails if the
- * settings check fails.
+ * settings are erroneous.
  *
  * - source:   the source object
  * - read:     the read method

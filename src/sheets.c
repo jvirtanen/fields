@@ -160,7 +160,7 @@ sheets_reader_alloc(void *source, sheets_source_read_fn *read_fn,
 {
     struct sheets_reader *self;
 
-    if (sheets_settings_check(settings) != 0)
+    if (sheets_settings_error(settings) != 0)
         return NULL;
 
     self = malloc(sizeof(*self));
@@ -393,43 +393,43 @@ const struct sheets_settings sheets_tsv =
 };
 
 int
-sheets_settings_check(const struct sheets_settings *settings)
+sheets_settings_error(const struct sheets_settings *settings)
 {
     if (settings->delimiter == '\n')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_DELIMITER;
 
     if (settings->delimiter == '\r')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_DELIMITER;
 
     if (settings->escape == '\n')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_ESCAPE;
 
     if (settings->escape == '\r')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_ESCAPE;
 
     if (settings->escape == settings->delimiter)
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_ESCAPE;
 
     if (settings->quote == '\n')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_QUOTE;
 
     if (settings->quote == '\r')
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_QUOTE;
 
     if (settings->quote == settings->delimiter)
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_QUOTE;
 
     if ((settings->quote != '\0') && (settings->escape != '\0'))
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_QUOTE;
 
     if (settings->file_buffer_size < SHEETS_MINIMUM_FILE_BUFFER_SIZE)
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_FILE_BUFFER_SIZE;
 
     if (settings->record_buffer_size < SHEETS_MINIMUM_RECORD_BUFFER_SIZE)
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_RECORD_BUFFER_SIZE;
 
     if (settings->record_max_fields < SHEETS_MINIMUM_RECORD_MAX_FIELDS)
-        return SHEETS_FAILURE;
+        return SHEETS_SETTINGS_ERROR_RECORD_MAX_FIELDS;
 
     return 0;
 }
