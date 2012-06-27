@@ -1,5 +1,4 @@
 CC ?= gcc
-LD := $(CC)
 
 PYTHON ?= python
 
@@ -16,8 +15,6 @@ CFLAGS += -std=c99
 
 OBJS += src/sheets.o
 OBJS += src/sheets_posix.o
-OBJS += test/dump.o
-PROG := test/dump
 
 LIB := libsheets.so
 
@@ -35,22 +32,18 @@ all: test
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(OBJS) $(LIB) $(PROG)
+	$(Q) $(RM) $(OBJS) $(LIB)
 	$(Q) find . -name *.pyc | xargs $(RM)
 .PHONY: clean
 
-test: $(LIB) $(PROG)
+test: $(LIB)
 	$(E) "  TEST     "
-	$(Q) cd test; $(PYTHON) test_sheets.py
+	$(Q) cd test; LD_LIBRARY_PATH=.. $(PYTHON) test_sheets.py
 .PHONY: test
 
 $(LIB): $(OBJS)
 	$(E) "  LINK     " $@
 	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
-
-$(PROG): $(OBJS)
-	$(E) "  LINK     " $@
-	$(Q) $(LD) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	$(E) "  COMPILE  " $@
