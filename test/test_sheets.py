@@ -1,148 +1,202 @@
 #!/usr/bin/env python
 
-import dump
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../python'))
+
+import sheets
+import tempfile
 import unittest
 
 
 class TestCase(unittest.TestCase):
 
-    def assert_equals(self, text, table):
-        self.__assert_equals(text, dump.dump_table(table), b=False)
-        self.__assert_equals(text, dump.dump_table(table), b=True)
+    def assertParseEqual(self, text, output):
+        self.assertEqual(self.__parse_buffer(text), output)
+        self.assertEqual(self.__parse_file(text), output)
 
-    def assert_error(self, text, message):
-        self.__assert_equals(text, message, b=False)
-        self.__assert_equals(text, message, b=True)
+    def __parse_buffer(self, text):
+        return self.__parse(text)
 
-    def __assert_equals(self, text, expected, b):
-        self.assertEquals(self.__dump_text(text, b), expected)
+    def __parse_file(self, text):
+        with tempfile.TemporaryFile() as outfile:
+            outfile.write(text)
+            outfile.seek(0)
+            return self.__parse(outfile)
 
-    def __dump_text(self, text, b):
-        return dump.dump_text(text, b, self.d, self.e, self.q)
+    def __parse(self, source):
+        reader = sheets.reader(source, **self.settings)
+        try:
+            return [record for record in reader]
+        except sheets.Error as e:
+            return str(e)
+
+
+class SettingsTest(TestCase):
+
+    def test_cr_as_delimiter(self):
+        self.assertFail('Bad field delimiter', delimiter='\r')
+
+    def test_lf_as_delimiter(self):
+        self.assertFail('Bad field delimiter', delimiter='\n')
+
+    def test_cr_as_escape(self):
+        self.assertFail('Bad escape character', escapechar='\r')
+
+    def test_lf_as_escape(self):
+        self.assertFail('Bad escape character', escapechar='\n')
+
+    def test_equal_delimiter_and_escape(self):
+        self.assertFail('Bad escape character', delimiter=',', escapechar=',')
+
+    def test_cr_as_quote(self):
+        self.assertFail('Bad quote character', quotechar='\r')
+
+    def test_lf_as_quote(self):
+        self.assertFail('Bad quote character', quotechar='\n')
+
+    def test_equal_delimiter_and_quote(self):
+        self.assertFail('Bad quote character', delimiter=',', quotechar=',')
+
+    def test_simultaneous_escape_and_quote(self):
+        self.assertFail('Bad quote character', escapechar='x', quotechar='y')
+
+    def assertFail(self, message, **settings):
+        try:
+            sheets.reader('', **settings)
+            self.fail()
+        except sheets.Error as e:
+            self.assertEqual(str(e), message)
 
 
 class CSVTest(TestCase):
 
+    def test_nul(self):
+        self.assertParseEqual('a\x00b\nc', [['a\x00b'], ['c']])
+
     def test_lf(self):
-        self.assert_equals('a,b\nc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a,b\nc\n', [['a', 'b'], ['c']])
 
     def test_cr(self):
-        self.assert_equals('a,b\rc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a,b\rc\n', [['a', 'b'], ['c']])
 
     def test_crlf(self):
-        self.assert_equals('a,b\r\nc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a,b\r\nc\n', [['a', 'b'], ['c']])
 
     def test_missing_newline_at_eof(self):
-        self.assert_equals('a,b\nc', [['a', 'b'], ['c']])
+        self.assertParseEqual('a,b\nc', [['a', 'b'], ['c']])
 
     def test_empty_source(self):
-        self.assert_equals('', [])
+        self.assertParseEqual('', [])
 
     def test_empty_line(self):
-        self.assert_equals('\n', [])
+        self.assertParseEqual('\n', [[]])
 
     def test_empty_record(self):
-        self.assert_equals('a,b\n\nc', [['a', 'b'], [], ['c']])
+        self.assertParseEqual('a,b\n\nc', [['a', 'b'], [], ['c']])
 
     def test_quote(self):
-        self.assert_error('a"b,c', 'sheets_reader_error: Unexpected character')
+        self.assertParseEqual('a"b,c', 'Unexpected character')
 
     def test_quoted(self):
-        self.assert_equals('"a","b"\n"c"\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('"a","b"\n"c"\n', [['a', 'b'], ['c']])
 
     def test_quoted_with_embedded_delimiter(self):
-        self.assert_equals('"a,b"\nc\n', [['a,b'], ['c']])
+        self.assertParseEqual('"a,b"\nc\n', [['a,b'], ['c']])
 
     def test_quoted_with_embedded_lf(self):
-        self.assert_equals('"a\nb"\nc\n', [['a\nb'], ['c']])
+        self.assertParseEqual('"a\nb"\nc\n', [['a\nb'], ['c']])
 
     def test_quoted_with_embedded_quote(self):
-        self.assert_equals('"a""b"\nc\n', [['a"b'], ['c']])
+       self.assertParseEqual('"a""b"\nc\n', [['a"b'], ['c']])
 
     def test_quoted_with_preceding_whitespace(self):
-        self.assert_equals('  "a",  "b"\n  "c"\n',
+        self.assertParseEqual('  "a",  "b"\n  "c"\n',
             [['a', 'b'], ['c']])
 
     def test_quoted_with_subsequent_whitespace(self):
-        self.assert_equals('"a"  ,"b"  \n"c"  \n',
+        self.assertParseEqual('"a"  ,"b"  \n"c"  \n',
             [['a', 'b'], ['c']])
 
     def test_quoted_without_terminating_quote(self):
-        self.assert_equals('a,b\n"c', [['a', 'b'], ['c']])
+        self.assertParseEqual('a,b\n"c', [['a', 'b'], ['c']])
 
     def test_quoted_with_preceding_garbage(self):
-        self.assert_error('a"b",c',
-            'sheets_reader_error: Unexpected character')
+        self.assertParseEqual('a"b",c', 'Unexpected character')
 
     def test_quoted_with_subsequent_garbage(self):
-        self.assert_error('"a"b,c',
-            'sheets_reader_error: Unexpected character')
+        self.assertParseEqual('"a"b,c', 'Unexpected character')
 
     def test_quoted_among_non_quoted(self):
-        self.assert_equals('a,"b",c', [['a', 'b', 'c']])
+        self.assertParseEqual('a,"b",c', [['a', 'b', 'c']])
 
     def test_tsv(self):
-        self.assert_equals('a\tb\nc\n', [['a\tb'], ['c']])
+        self.assertParseEqual('a\tb\nc\n', [['a\tb'], ['c']])
 
     def test_maximum_fields(self):
-        self.assert_equals(','.join('a' * 15), [['a'] * 15])
+        self.assertParseEqual(','.join('a' * 1023), [['a'] * 1023])
 
     def test_too_many_fields(self):
-        self.assert_error(','.join('a' * 16),
-            'sheets_reader_error: Too many fields')
+        self.assertParseEqual(','.join('a' * 1024), 'Too many fields')
 
     def setUp(self):
-        self.d = ','
-        self.q = '"'
-        self.e = None
+        self.settings = {
+            'delimiter' : ',',
+            'quotechar' : '"',
+            'escapechar': None
+        }
 
 
 class TSVTest(TestCase):
 
+    def test_nul(self):
+        self.assertParseEqual('a\x00b\nc', [['a\x00b'], ['c']])
+
     def test_lf(self):
-        self.assert_equals('a\tb\nc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a\tb\nc\n', [['a', 'b'], ['c']])
 
     def test_cr(self):
-        self.assert_equals('a\tb\rc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a\tb\rc\n', [['a', 'b'], ['c']])
 
     def test_crlf(self):
-        self.assert_equals('a\tb\r\nc\n', [['a', 'b'], ['c']])
+        self.assertParseEqual('a\tb\r\nc\n', [['a', 'b'], ['c']])
 
     def test_missing_newline_at_eof(self):
-        self.assert_equals('a\tb\nc', [['a', 'b'], ['c']])
+        self.assertParseEqual('a\tb\nc', [['a', 'b'], ['c']])
 
     def test_empty_source(self):
-        self.assert_equals('', [])
+        self.assertParseEqual('', [])
 
     def test_empty_line(self):
-        self.assert_equals('\n', [])
+        self.assertParseEqual('\n', [[]])
 
     def test_empty_record(self):
-        self.assert_equals('a\tb\n\nc', [['a', 'b'], [], ['c']])
+        self.assertParseEqual('a\tb\n\nc', [['a', 'b'], [], ['c']])
 
     def test_escaped_delimiter(self):
-        self.assert_equals('a\\\tb\nc', [['a\tb'], ['c']])
+        self.assertParseEqual('a\\\tb\nc', [['a\tb'], ['c']])
 
     def test_escaped_lf(self):
-        self.assert_equals('a\tb\\\nc', [['a', 'b\nc']])
+        self.assertParseEqual('a\tb\\\nc', [['a', 'b\nc']])
 
     def test_terminating_escape(self):
-        self.assert_equals('a\tb\nc\\', [['a', 'b'], ['c']])
+        self.assertParseEqual('a\tb\nc\\', [['a', 'b'], ['c']])
 
     def test_csv(self):
-        self.assert_equals('a,b\nc\n', [['a,b'], ['c']])
+        self.assertParseEqual('a,b\nc\n', [['a,b'], ['c']])
 
     def test_maximum_fields(self):
-        self.assert_equals('\t'.join('a' * 15), [['a'] * 15])
+        self.assertParseEqual('\t'.join('a' * 1023), [['a'] * 1023])
 
     def test_too_many_fields(self):
-        self.assert_error('\t'.join('a' * 16),
-            'sheets_reader_error: Too many fields')
+        self.assertParseEqual('\t'.join('a' * 1024), 'Too many fields')
 
     def setUp(self):
-        self.d = '\t'
-        self.e = '\\'
-        self.q = None
+        self.settings = {
+            'delimiter' : '\t',
+            'quotechar' : None,
+            'escapechar': '\\'
+        }
 
 
 if __name__ == "__main__":
