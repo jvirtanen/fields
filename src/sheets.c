@@ -398,6 +398,7 @@ sheets_record_normalize(struct sheets_record *self)
 const struct sheets_settings sheets_csv =
 {
     .delimiter = ',',
+    .escape = '\0',
     .quote = '"',
     .file_buffer_size = SHEETS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = SHEETS_DEFAULT_RECORD_BUFFER_SIZE,
@@ -407,6 +408,7 @@ const struct sheets_settings sheets_csv =
 const struct sheets_settings sheets_tsv =
 {
     .delimiter = '\t',
+    .escape = '\0',
     .quote = '\0',
     .file_buffer_size = SHEETS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = SHEETS_DEFAULT_RECORD_BUFFER_SIZE,
