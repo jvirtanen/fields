@@ -216,7 +216,10 @@ struct sheets_settings
     char    quote;
 
     /*
-     * Expand the record if needed.
+     * Expand the record if needed. If true, whenever the limit for the record
+     * buffer size or for the maximum number of fields in a record is reached,
+     * the limit is doubled. If false or if the operation fails, the reader
+     * enters the error state for too big record or too many fields.
      */
     int     expand;
 
