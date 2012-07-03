@@ -204,6 +204,7 @@ class LimitsWithoutExpansionTest(TestCase):
     def setUp(self):
         self.settings = {
             '_expand'               : False,
+            '_file_buffer_size'     : 1024,
             '_record_max_fields'    : 16,
             '_record_buffer_size'   : 1024
         }
@@ -223,9 +224,13 @@ class LimitWithExpansionTest(TestCase):
     def test_field_expansion(self):
         self.assertParseEqual(','.join('a' * 17), [['a'] * 17])
 
+    def test_buffer_expansion_at_file_buffer_boundary(self):
+        self.assertParseEqual('%s,%s' % ('a' * 1024, 'a'), [['a' * 1024, 'a']])
+
     def setUp(self):
         self.settings = {
             '_expand'               : True,
+            '_file_buffer_size'     : 1024,
             '_record_max_fields'    : 16,
             '_record_buffer_size'   : 1024
         }
