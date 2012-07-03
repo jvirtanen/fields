@@ -217,6 +217,9 @@ class LimitWithExpansionTest(TestCase):
     def test_maximum_number_of_fields(self):
         self.assertParseEqual(','.join('a' * 16), [['a'] * 16])
 
+    def test_buffer_expansion(self):
+        self.assertParseEqual('a' * 1024, [['a' * 1024]])
+
     def test_field_expansion(self):
         self.assertParseEqual(','.join('a' * 17), [['a'] * 17])
 

@@ -61,6 +61,7 @@ struct sheets_record
 
 static const char *sheets_record_end(const struct sheets_record *);
 static void sheets_record_init(struct sheets_record *);
+static char *sheets_record_expand(struct sheets_record *, char *);
 static int sheets_record_push(struct sheets_record *, char *);
 static char *sheets_record_pop(struct sheets_record *);
 static void sheets_record_finish(struct sheets_record *, char *);
@@ -350,6 +351,34 @@ sheets_record_init(struct sheets_record *self)
     self->num_fields = 0;
 }
 
+static char *
+sheets_record_expand(struct sheets_record *self, char *cursor)
+{
+    char *      buffer;
+    size_t      buffer_size;
+    unsigned    i;
+    size_t      offset;
+
+    if (!self->expand)
+        return NULL;
+
+    offset = cursor - self->buffer;
+
+    buffer_size = self->buffer_size * 2;
+
+    buffer = realloc(self->buffer, buffer_size);
+    if (buffer == NULL)
+        return NULL;
+
+    for (i = 0; i < self->num_fields; i++)
+        self->fields[i] = self->fields[i] - self->buffer + buffer;
+
+    self->buffer = buffer;
+    self->buffer_size = buffer_size;
+
+    return self->buffer + offset;
+}
+
 static int
 sheets_record_push(struct sheets_record *self, char *cursor)
 {
@@ -564,16 +593,23 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
                 *wp++ = *rp++;
         }
 
-        if (wp == wq)
-            return sheets_parse_fail(reader, record,
-                SHEETS_READER_ERROR_TOO_BIG_RECORD);
+        if (wp == wq) {
+            wp = sheets_record_expand(record, wp);
+            if (wp == NULL)
+                return sheets_parse_fail(reader, record,
+                    SHEETS_READER_ERROR_TOO_BIG_RECORD);
 
-        if (sheets_reader_fill(reader) != 0)
-            return sheets_parse_fail(reader, record,
-                SHEETS_READER_ERROR_UNREADABLE_SOURCE);
+            wq = sheets_record_end(record);
+        }
 
-        rp = reader->cursor;
-        rq = sheets_reader_end(reader);
+        if (rp == rq) {
+            if (sheets_reader_fill(reader) != 0)
+                return sheets_parse_fail(reader, record,
+                    SHEETS_READER_ERROR_UNREADABLE_SOURCE);
+
+            rp = reader->cursor;
+            rq = sheets_reader_end(reader);
+        }
 
         if (rp == rq) {
             *wp++ = '\0';
@@ -711,16 +747,23 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
 
         }
 
-        if (wp == wq)
-            return sheets_parse_fail(reader, record,
-                SHEETS_READER_ERROR_TOO_BIG_RECORD);
+        if (wp == wq) {
+            wp = sheets_record_expand(record, wp);
+            if (wp == NULL)
+                return sheets_parse_fail(reader, record,
+                        SHEETS_READER_ERROR_TOO_BIG_RECORD);
 
-        if (sheets_reader_fill(reader) != 0)
-            return sheets_parse_fail(reader, record,
-                SHEETS_READER_ERROR_UNREADABLE_SOURCE);
+            wq = sheets_record_end(record);
+        }
 
-        rp = reader->cursor;
-        rq = sheets_reader_end(reader);
+        if (rp == rq) {
+            if (sheets_reader_fill(reader) != 0)
+                return sheets_parse_fail(reader, record,
+                    SHEETS_READER_ERROR_UNREADABLE_SOURCE);
+
+            rp = reader->cursor;
+            rq = sheets_reader_end(reader);
+        }
 
         if (rp == rq) {
             *wp++ = '\0';
