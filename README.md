@@ -71,6 +71,15 @@ Include `include/sheets.h` and `src/sheets.c` into your application.
 History
 -------
 
+  - 0.4.0 (2012-07-03)
+    - Adds record expansion
+    - Adds Python API
+    - Adds POSIX API 
+    - Adds `sheets_reader_strerror` and `sheets_settings_strerror`
+    - Adds `sheets_settings_error`
+    - Renames `sheets_error` to `sheets_reader_error`
+    - Fixes parsing of quoted field after non-quoted
+
   - 0.3.3 (2012-06-13)
     - Fixes uninitialized value in `sheets_reader_alloc`
 

@@ -40,7 +40,7 @@ extern "C" {
  *     https://github.com/jvirtanen/sheets
  */
 
-#define SHEETS_VERSION "0.3.3"
+#define SHEETS_VERSION "0.4.0"
 
 struct sheets_field
 {
