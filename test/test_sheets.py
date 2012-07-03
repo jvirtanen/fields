@@ -133,12 +133,6 @@ class CSVTest(TestCase):
     def test_tsv(self):
         self.assertParseEqual('a\tb\nc\n', [['a\tb'], ['c']])
 
-    def test_maximum_fields(self):
-        self.assertParseEqual(','.join('a' * 1023), [['a'] * 1023])
-
-    def test_too_many_fields(self):
-        self.assertParseEqual(','.join('a' * 1024), 'Too many fields')
-
     def setUp(self):
         self.settings = {
             'delimiter' : ',',
@@ -185,17 +179,52 @@ class TSVTest(TestCase):
     def test_csv(self):
         self.assertParseEqual('a,b\nc\n', [['a,b'], ['c']])
 
-    def test_maximum_fields(self):
-        self.assertParseEqual('\t'.join('a' * 1023), [['a'] * 1023])
-
-    def test_too_many_fields(self):
-        self.assertParseEqual('\t'.join('a' * 1024), 'Too many fields')
-
     def setUp(self):
         self.settings = {
             'delimiter' : '\t',
             'quotechar' : None,
             'escapechar': '\\'
+        }
+
+
+class LimitsWithoutExpansionTest(TestCase):
+
+    def test_full_buffer(self):
+        self.assertParseEqual('a' * 1023, [['a' * 1023]])
+
+    def test_maximum_number_of_fields(self):
+        self.assertParseEqual(','.join('a' * 16), [['a'] * 16])
+
+    def test_too_big_record(self):
+        self.assertParseEqual('a' * 1024, 'Too big record')
+
+    def test_too_many_fields(self):
+        self.assertParseEqual(','.join('a' * 17), 'Too many fields')
+
+    def setUp(self):
+        self.settings = {
+            '_expand'               : False,
+            '_record_max_fields'    : 16,
+            '_record_buffer_size'   : 1024
+        }
+
+
+class LimitWithExpansionTest(TestCase):
+
+    def test_full_buffer(self):
+        self.assertParseEqual('a' * 1023, [['a' * 1023]])
+
+    def test_maximum_number_of_fields(self):
+        self.assertParseEqual(','.join('a' * 16), [['a'] * 16])
+
+    def test_field_expansion(self):
+        self.assertParseEqual(','.join('a' * 17), [['a'] * 17])
+
+    def setUp(self):
+        self.settings = {
+            '_expand'               : True,
+            '_record_max_fields'    : 16,
+            '_record_buffer_size'   : 1024
         }
 
 

@@ -56,6 +56,7 @@ struct sheets_record
     char ** fields;
     size_t  num_fields;
     size_t  max_fields;
+    bool    expand;
 };
 
 static const char *sheets_record_end(const struct sheets_record *);
@@ -306,6 +307,7 @@ sheets_record_alloc(const struct sheets_settings *settings)
     self->fields = fields;
     self->num_fields = 0;
     self->max_fields = max_fields;
+    self->expand = settings->expand;
 
     return self;
 }
@@ -351,8 +353,22 @@ sheets_record_init(struct sheets_record *self)
 static int
 sheets_record_push(struct sheets_record *self, char *cursor)
 {
-    if (self->num_fields == self->max_fields)
-        return SHEETS_FAILURE;
+    if (self->num_fields == self->max_fields) {
+        size_t  max_fields;
+        char ** fields;
+
+        if (!self->expand)
+            return SHEETS_FAILURE;
+
+        max_fields = self->max_fields * 2;
+
+        fields = realloc(self->fields, (max_fields + 1) * sizeof(char *));
+        if (fields == NULL)
+            return SHEETS_FAILURE;
+
+        self->fields = fields;
+        self->max_fields = max_fields;
+    }
 
     self->fields[self->num_fields++] = cursor;
     return 0;
@@ -400,6 +416,7 @@ const struct sheets_settings sheets_csv =
     .delimiter = ',',
     .escape = '\0',
     .quote = '"',
+    .expand = true,
     .file_buffer_size = SHEETS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = SHEETS_DEFAULT_RECORD_BUFFER_SIZE,
     .record_max_fields = SHEETS_DEFAULT_RECORD_MAX_FIELDS
@@ -410,6 +427,7 @@ const struct sheets_settings sheets_tsv =
     .delimiter = '\t',
     .escape = '\0',
     .quote = '\0',
+    .expand = true,
     .file_buffer_size = SHEETS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = SHEETS_DEFAULT_RECORD_BUFFER_SIZE,
     .record_max_fields = SHEETS_DEFAULT_RECORD_MAX_FIELDS

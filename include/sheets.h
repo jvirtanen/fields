@@ -216,6 +216,11 @@ struct sheets_settings
     char    quote;
 
     /*
+     * Expand the record if needed.
+     */
+    int     expand;
+
+    /*
      * Size of the buffer within a file source.
      */
     size_t  file_buffer_size;
