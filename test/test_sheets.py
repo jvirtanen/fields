@@ -210,7 +210,7 @@ class LimitsWithoutExpansionTest(TestCase):
         }
 
 
-class LimitWithExpansionTest(TestCase):
+class LimitsWithExpansionTest(TestCase):
 
     def test_full_buffer(self):
         self.assertParseEqual('a' * 1023, [['a' * 1023]])
