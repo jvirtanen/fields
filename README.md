@@ -1,8 +1,7 @@
 Sheets
 ======
 
-Sheets is a simple and fast C library for reading tabular text formats, such
-as CSV and TSV.
+Sheets is a fast C library for reading CSV and other tabular text formats.
 
 
 Features
