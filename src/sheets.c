@@ -290,6 +290,16 @@ sheets_record_alloc(const struct sheets_settings *settings)
     if (buffer == NULL)
         return NULL;
 
+    /*
+     * `buffer` stores the fields separated by single `NUL` characters. Note
+     * that also the fields themselves may contain `NUL` characters.
+     *
+     * `fields` stores a pointer to the beginning of each field. The pointer
+     * to the beginning of field `n + 1` is used for calculating the length
+     * of field `n`. The last field is no exception: the value at the index
+     * `num_fields` stores a pointer pointing to where the next field would
+     * start. Hence the size of `fields` is `max_fields + 1`.
+     */
     fields = malloc((max_fields + 1) * sizeof(char *));
     if (fields == NULL) {
         free(buffer);
