@@ -252,7 +252,8 @@ struct sheets_settings
  *
  * - settings: the settings
  *
- * Returns non-zero if the settings are erroneous. Otherwise returns zero.
+ * Returns an error code if the settings are erroneous. Otherwise returns
+ * zero.
  */
 int sheets_settings_error(const struct sheets_settings *);
 
