@@ -761,7 +761,7 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
             wp = sheets_record_expand(record, wp);
             if (wp == NULL)
                 return sheets_parse_fail(reader, record,
-                        SHEETS_READER_ERROR_TOO_BIG_RECORD);
+                    SHEETS_READER_ERROR_TOO_BIG_RECORD);
 
             wq = sheets_record_end(record);
         }
