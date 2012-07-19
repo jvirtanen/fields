@@ -627,7 +627,8 @@ sheets_parse_unquoted(struct sheets_reader *reader, struct sheets_record *record
         }
     }
 
-    return sheets_parse_fail(reader, record, SHEETS_READER_ERROR_UNEXPECTED_CHARACTER);
+    return sheets_parse_fail(reader, record,
+        SHEETS_READER_ERROR_UNEXPECTED_CHARACTER);
 }
 
 static int
@@ -781,7 +782,8 @@ sheets_parse_quoted(struct sheets_reader *reader, struct sheets_record *record)
         }
     }
 
-    return sheets_parse_fail(reader, record, SHEETS_READER_ERROR_UNEXPECTED_CHARACTER);
+    return sheets_parse_fail(reader, record,
+        SHEETS_READER_ERROR_UNEXPECTED_CHARACTER);
 }
 
 static int
