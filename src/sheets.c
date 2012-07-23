@@ -810,7 +810,6 @@ sheets_parse_fail(struct sheets_reader *reader, struct sheets_record *record,
     return SHEETS_FAILURE;
 }
 
-
 static int
 sheets_parse_start(struct sheets_reader *reader, struct sheets_record *record)
 {
