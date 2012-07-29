@@ -452,24 +452,24 @@ fields_record_normalize(struct fields_record *self)
 
 const struct fields_settings fields_csv =
 {
-    .delimiter = ',',
-    .escape = '\0',
-    .quote = '"',
-    .expand = true,
-    .file_buffer_size = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
+    .delimiter          = ',',
+    .escape             = '\0',
+    .quote              = '"',
+    .expand             = true,
+    .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
-    .record_max_fields = FIELDS_DEFAULT_RECORD_MAX_FIELDS
+    .record_max_fields  = FIELDS_DEFAULT_RECORD_MAX_FIELDS
 };
 
 const struct fields_settings fields_tsv =
 {
-    .delimiter = '\t',
-    .escape = '\0',
-    .quote = '\0',
-    .expand = true,
-    .file_buffer_size = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
+    .delimiter          = '\t',
+    .escape             = '\0',
+    .quote              = '\0',
+    .expand             = true,
+    .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
     .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
-    .record_max_fields = FIELDS_DEFAULT_RECORD_MAX_FIELDS
+    .record_max_fields  = FIELDS_DEFAULT_RECORD_MAX_FIELDS
 };
 
 int
