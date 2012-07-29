@@ -1,4 +1,4 @@
-from . import libsheets
+from . import libfields
 
 
 class Error(Exception):
@@ -10,8 +10,8 @@ class Reader(object):
     def __init__(self, csvfile, **kwargs):
         settings = _settings(kwargs)
         try:
-            self.__reader = libsheets.Reader(csvfile, settings)
-            self.__record = libsheets.Record(settings)
+            self.__reader = libfields.Reader(csvfile, settings)
+            self.__record = libfields.Record(settings)
         except ValueError as e:
             raise Error(str(e))
 
@@ -41,7 +41,7 @@ def _settings(kwargs):
         file_buffer_size = kwargs.get('_file_buffer_size', 4 * 1024)
         record_buffer_size = kwargs.get('_record_buffer_size', 1024 * 1024)
         record_max_fields = kwargs.get('_record_max_fields', 1023)
-        return libsheets.Settings(
+        return libfields.Settings(
             as_char(delimiter),
             as_char(escape),
             as_char(quote),

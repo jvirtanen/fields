@@ -13,10 +13,10 @@ CFLAGS += -fPIC
 CFLAGS += -pedantic
 CFLAGS += -std=c99
 
-OBJS += src/sheets.o
-OBJS += src/sheets_posix.o
+OBJS += src/fields.o
+OBJS += src/fields_posix.o
 
-LIB := libsheets.so
+LIB := libfields.so
 
 V =
 ifeq ($(strip $(V)),)
@@ -38,7 +38,7 @@ clean:
 
 test: $(LIB)
 	$(E) "  TEST     "
-	$(Q) cd test; LD_LIBRARY_PATH=.. $(PYTHON) test_sheets.py
+	$(Q) cd test; LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
 .PHONY: test
 
 $(LIB): $(OBJS)

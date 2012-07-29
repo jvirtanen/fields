@@ -4,7 +4,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../python'))
 
-import sheets
+import fields
 import tempfile
 import unittest
 
@@ -25,10 +25,10 @@ class TestCase(unittest.TestCase):
             return self.__parse(outfile)
 
     def __parse(self, source):
-        reader = sheets.reader(source, **self.settings)
+        reader = fields.reader(source, **self.settings)
         try:
             return [record for record in reader]
-        except sheets.Error as e:
+        except fields.Error as e:
             return str(e)
 
 
@@ -63,9 +63,9 @@ class SettingsTest(TestCase):
 
     def assertFail(self, message, **settings):
         try:
-            sheets.reader('', **settings)
+            fields.reader('', **settings)
             self.fail()
-        except sheets.Error as e:
+        except fields.Error as e:
             self.assertEqual(str(e), message)
 
 

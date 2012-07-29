@@ -20,8 +20,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef SHEETS_H
-#define SHEETS_H
+#ifndef FIELDS_H
+#define FIELDS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,27 +31,27 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Sheets
+ * Fields
  * ======
  *
- * Sheets is a fast C library for reading CSV and other tabular text formats.
+ * Fields is a fast C library for reading CSV and other tabular text formats.
  *
- *     https://github.com/jvirtanen/sheets
+ *     https://github.com/jvirtanen/fields
  */
 
-#define SHEETS_VERSION "0.4.0"
+#define FIELDS_VERSION "0.4.0"
 
-struct sheets_field
+struct fields_field
 {
     const char *value;
     size_t      length;
 };
 
-struct sheets_reader;
+struct fields_reader;
 
-struct sheets_record;
+struct fields_record;
 
-struct sheets_settings;
+struct fields_settings;
 
 /*
  * Readers
@@ -68,8 +68,8 @@ struct sheets_settings;
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct sheets_reader *sheets_read_buffer(const char *, size_t,
-    const struct sheets_settings *);
+struct fields_reader *fields_read_buffer(const char *, size_t,
+    const struct fields_settings *);
 
 /*
  * Allocate a reader that reads from the specified file. The operation fails
@@ -80,14 +80,14 @@ struct sheets_reader *sheets_read_buffer(const char *, size_t,
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct sheets_reader *sheets_read_file(FILE *, const struct sheets_settings *);
+struct fields_reader *fields_read_file(FILE *, const struct fields_settings *);
 
 /*
  * Deallocate the reader.
  *
  * - reader: the reader object
  */
-void sheets_reader_free(struct sheets_reader *);
+void fields_reader_free(struct fields_reader *);
 
 /*
  * Read a record. If successful, the operation updates the record object.
@@ -99,7 +99,7 @@ void sheets_reader_free(struct sheets_reader *);
  *
  * If successful, returns zero. Otherwise returns non-zero.
  */
-int sheets_reader_read(struct sheets_reader *, struct sheets_record *);
+int fields_reader_read(struct fields_reader *, struct fields_record *);
 
 /*
  * Check whether the reader is in error state.
@@ -108,7 +108,7 @@ int sheets_reader_read(struct sheets_reader *, struct sheets_record *);
  *
  * Returns an error code if the reader is in error state. Otherwise returns zero.
  */
-int sheets_reader_error(const struct sheets_reader *);
+int fields_reader_error(const struct fields_reader *);
 
 /*
  * Get a string representation of an error code.
@@ -117,14 +117,14 @@ int sheets_reader_error(const struct sheets_reader *);
  *
  * Returns a string representation of the error code.
  */
-const char *sheets_reader_strerror(int);
+const char *fields_reader_strerror(int);
 
-enum sheets_reader_error
+enum fields_reader_error
 {
-    SHEETS_READER_ERROR_TOO_BIG_RECORD = 1,
-    SHEETS_READER_ERROR_TOO_MANY_FIELDS = 2,
-    SHEETS_READER_ERROR_UNEXPECTED_CHARACTER = 3,
-    SHEETS_READER_ERROR_UNREADABLE_SOURCE = 4
+    FIELDS_READER_ERROR_TOO_BIG_RECORD = 1,
+    FIELDS_READER_ERROR_TOO_MANY_FIELDS = 2,
+    FIELDS_READER_ERROR_UNEXPECTED_CHARACTER = 3,
+    FIELDS_READER_ERROR_UNREADABLE_SOURCE = 4
 };
 
 /*
@@ -139,14 +139,14 @@ enum sheets_reader_error
  *
  * If successful, returns a record object. Otherwise returns `NULL`.
  */
-struct sheets_record *sheets_record_alloc(const struct sheets_settings *);
+struct fields_record *fields_record_alloc(const struct fields_settings *);
 
 /*
  * Deallocate the record.
  *
  * - record: the record object
  */
-void sheets_record_free(struct sheets_record *);
+void fields_record_free(struct fields_record *);
 
 /*
  * Get the field at the specified index. If successful, the operation updates
@@ -159,8 +159,8 @@ void sheets_record_free(struct sheets_record *);
  *
  * If successful, returns zero. Otherwise returns non-zero.
  */
-int sheets_record_field(const struct sheets_record *, unsigned int,
-    struct sheets_field *);
+int fields_record_field(const struct fields_record *, unsigned int,
+    struct fields_field *);
 
 /*
  * Get the number of fields in the record.
@@ -169,7 +169,7 @@ int sheets_record_field(const struct sheets_record *, unsigned int,
  *
  * Returns the number of fields in the record.
  */
-size_t sheets_record_size(const struct sheets_record *);
+size_t fields_record_size(const struct fields_record *);
 
 /*
  * Default Settings
@@ -180,20 +180,20 @@ size_t sheets_record_size(const struct sheets_record *);
  * Comma-separated values (CSV): a comma (`,`) is used as the delimiter and a
  * double quote (`"`) for quoting.
  */
-extern const struct sheets_settings sheets_csv;
+extern const struct fields_settings fields_csv;
 
 /*
  * Tab-separated values (TSV): a tab (`\t`) is used as the delimiter and
  * quoting is disabled.
  */
-extern const struct sheets_settings sheets_tsv;
+extern const struct fields_settings fields_tsv;
 
 /*
  * Custom Settings
  * ---------------
  */
 
-struct sheets_settings
+struct fields_settings
 {
     /*
      * The delimiter character. Must not be `\n` or `\r`.
@@ -238,14 +238,14 @@ struct sheets_settings
     size_t  record_max_fields;
 };
 
-#define SHEETS_MINIMUM_FILE_BUFFER_SIZE (1024)
-#define SHEETS_DEFAULT_FILE_BUFFER_SIZE (4 * 1024)
+#define FIELDS_MINIMUM_FILE_BUFFER_SIZE (1024)
+#define FIELDS_DEFAULT_FILE_BUFFER_SIZE (4 * 1024)
 
-#define SHEETS_MINIMUM_RECORD_BUFFER_SIZE (1024)
-#define SHEETS_DEFAULT_RECORD_BUFFER_SIZE (1024 * 1024)
+#define FIELDS_MINIMUM_RECORD_BUFFER_SIZE (1024)
+#define FIELDS_DEFAULT_RECORD_BUFFER_SIZE (1024 * 1024)
 
-#define SHEETS_MINIMUM_RECORD_MAX_FIELDS (1)
-#define SHEETS_DEFAULT_RECORD_MAX_FIELDS (1023)
+#define FIELDS_MINIMUM_RECORD_MAX_FIELDS (1)
+#define FIELDS_DEFAULT_RECORD_MAX_FIELDS (1023)
 
 /*
  * Check whether the settings are erroneous.
@@ -255,7 +255,7 @@ struct sheets_settings
  * Returns an error code if the settings are erroneous. Otherwise returns
  * zero.
  */
-int sheets_settings_error(const struct sheets_settings *);
+int fields_settings_error(const struct fields_settings *);
 
 /*
  * Get a string representation of an error code.
@@ -264,16 +264,16 @@ int sheets_settings_error(const struct sheets_settings *);
  *
  * Returns a string representation of the error code.
  */
-const char *sheets_settings_strerror(int);
+const char *fields_settings_strerror(int);
 
-enum sheets_settings_error
+enum fields_settings_error
 {
-    SHEETS_SETTINGS_ERROR_DELIMITER = 1,
-    SHEETS_SETTINGS_ERROR_ESCAPE = 2,
-    SHEETS_SETTINGS_ERROR_QUOTE = 3,
-    SHEETS_SETTINGS_ERROR_FILE_BUFFER_SIZE = 4,
-    SHEETS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 5,
-    SHEETS_SETTINGS_ERROR_RECORD_MAX_FIELDS = 6
+    FIELDS_SETTINGS_ERROR_DELIMITER = 1,
+    FIELDS_SETTINGS_ERROR_ESCAPE = 2,
+    FIELDS_SETTINGS_ERROR_QUOTE = 3,
+    FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE = 4,
+    FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 5,
+    FIELDS_SETTINGS_ERROR_RECORD_MAX_FIELDS = 6
 };
 
 /*
@@ -292,14 +292,14 @@ enum sheets_settings_error
  *
  * If successful, returns zero. Otherwise returns non-zero.
  */
-typedef int sheets_source_read_fn(void *, const char **, size_t *);
+typedef int fields_source_read_fn(void *, const char **, size_t *);
 
 /*
  * Deallocate the source.
  *
  * - source: the source object
  */
-typedef void sheets_source_free_fn(void *);
+typedef void fields_source_free_fn(void *);
 
 /*
  * Allocate a reader for the specified source. The operation fails if the
@@ -312,11 +312,11 @@ typedef void sheets_source_free_fn(void *);
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct sheets_reader *sheets_reader_alloc(void *, sheets_source_read_fn *,
-    sheets_source_free_fn *, const struct sheets_settings *);
+struct fields_reader *fields_reader_alloc(void *, fields_source_read_fn *,
+    fields_source_free_fn *, const struct fields_settings *);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* SHEETS_H */
+#endif /* FIELDS_H */

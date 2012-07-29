@@ -20,22 +20,22 @@
  * THE SOFTWARE.
  */
 
-#ifndef SHEETS_POSIX_H
-#define SHEETS_POSIX_H
+#ifndef FIELDS_POSIX_H
+#define FIELDS_POSIX_H
 
-#include "sheets.h"
+#include "fields.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Sheets
+ * Fields
  * ======
  *
- * Sheets is a fast C library for reading CSV and other tabular text formats.
+ * Fields is a fast C library for reading CSV and other tabular text formats.
  *
- *     https://github.com/jvirtanen/sheets
+ *     https://github.com/jvirtanen/fields
  */
 
 /*
@@ -47,10 +47,10 @@ extern "C" {
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct sheets_reader *sheets_read_fd(int, const struct sheets_settings *);
+struct fields_reader *fields_read_fd(int, const struct fields_settings *);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* SHEETS_POSIX_H */
+#endif /* FIELDS_POSIX_H */

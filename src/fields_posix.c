@@ -23,45 +23,45 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "sheets.h"
-#include "sheets_posix.h"
+#include "fields.h"
+#include "fields_posix.h"
 
-#define SHEETS_FAILURE (-1)
+#define FIELDS_FAILURE (-1)
 
-struct sheets_fd {
+struct fields_fd {
     int     fd;
     char *  buffer;
     size_t  buffer_size;
 };
 
-static struct sheets_fd *sheets_fd_alloc(int, size_t);
-static int sheets_fd_read(void *, const char **, size_t *);
-static void sheets_fd_free(void *);
+static struct fields_fd *fields_fd_alloc(int, size_t);
+static int fields_fd_read(void *, const char **, size_t *);
+static void fields_fd_free(void *);
 
-struct sheets_reader *
-sheets_read_fd(int fd, const struct sheets_settings *settings)
+struct fields_reader *
+fields_read_fd(int fd, const struct fields_settings *settings)
 {
-    struct sheets_reader *reader;
-    struct sheets_fd *source;
+    struct fields_reader *reader;
+    struct fields_fd *source;
 
-    source = sheets_fd_alloc(fd, settings->file_buffer_size);
+    source = fields_fd_alloc(fd, settings->file_buffer_size);
     if (source == NULL)
         return NULL;
 
-    reader = sheets_reader_alloc(source, &sheets_fd_read, &sheets_fd_free,
+    reader = fields_reader_alloc(source, &fields_fd_read, &fields_fd_free,
         settings);
     if (reader == NULL) {
-        sheets_fd_free(source);
+        fields_fd_free(source);
         return NULL;
     }
 
     return reader;
 }
 
-static struct sheets_fd *
-sheets_fd_alloc(int fd, size_t buffer_size)
+static struct fields_fd *
+fields_fd_alloc(int fd, size_t buffer_size)
 {
-    struct sheets_fd *self;
+    struct fields_fd *self;
     char *buffer;
 
     buffer = malloc(buffer_size);
@@ -82,14 +82,14 @@ sheets_fd_alloc(int fd, size_t buffer_size)
 }
 
 static int
-sheets_fd_read(void *source, const char **buffer, size_t *buffer_size)
+fields_fd_read(void *source, const char **buffer, size_t *buffer_size)
 {
-    struct sheets_fd *self = source;
+    struct fields_fd *self = source;
     ssize_t size;
 
     size = read(self->fd, self->buffer, self->buffer_size);
     if (size == -1)
-        return SHEETS_FAILURE;
+        return FIELDS_FAILURE;
 
     *buffer = self->buffer;
     *buffer_size = size;
@@ -98,9 +98,9 @@ sheets_fd_read(void *source, const char **buffer, size_t *buffer_size)
 }
 
 static void
-sheets_fd_free(void *source)
+fields_fd_free(void *source)
 {
-    struct sheets_fd *self = source;
+    struct fields_fd *self = source;
 
     free(self->buffer);
     free(self);
