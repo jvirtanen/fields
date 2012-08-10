@@ -1,7 +1,5 @@
 CC ?= gcc
 
-PYTHON ?= python
-
 CFLAGS += -Iinclude
 CFLAGS += -O3
 CFLAGS += -Wall
@@ -32,12 +30,12 @@ all: test
 clean:
 	$(E) "  CLEAN    "
 	$(Q) $(RM) $(LIB) $(LIB_OBJS)
-	$(Q) find . -name *.pyc | xargs $(RM)
+	$(Q) cd python; $(MAKE) clean
 .PHONY: clean
 
 test: $(LIB)
 	$(E) "  TEST     "
-	$(Q) cd python; LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
+	$(Q) cd python; $(MAKE) test
 .PHONY: test
 
 $(LIB): $(LIB_OBJS)
