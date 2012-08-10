@@ -13,9 +13,8 @@ CFLAGS += -fPIC
 CFLAGS += -pedantic
 CFLAGS += -std=c99
 
-OBJS += src/fields.o
-OBJS += src/fields_posix.o
-
+LIB_OBJS += src/fields.o
+LIB_OBJS += src/fields_posix.o
 LIB := libfields.so
 
 V =
@@ -32,7 +31,7 @@ all: test
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(OBJS) $(LIB)
+	$(Q) $(RM) $(LIB) $(LIB_OBJS)
 	$(Q) find . -name *.pyc | xargs $(RM)
 .PHONY: clean
 
@@ -41,7 +40,7 @@ test: $(LIB)
 	$(Q) cd test; LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
 .PHONY: test
 
-$(LIB): $(OBJS)
+$(LIB): $(LIB_OBJS)
 	$(E) "  LINK     " $@
 	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
 
