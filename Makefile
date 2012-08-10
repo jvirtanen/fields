@@ -37,7 +37,7 @@ clean:
 
 test: $(LIB)
 	$(E) "  TEST     "
-	$(Q) cd test; LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
+	$(Q) cd python; LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
 .PHONY: test
 
 $(LIB): $(LIB_OBJS)
