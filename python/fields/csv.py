@@ -2,15 +2,43 @@ from . import libfields
 
 
 class Error(Exception):
+    """
+    This exception is raised whenever an error is detected.
+    """
     pass
+
+
+def reader(source, **kwargs):
+    """
+    Return a reader object that reads from `source`. `source` can be either a
+    string or a file object. If `source` is a file object, it should be opened
+    with the `b` flag.
+
+    Optional keyword arguments can be given to override default formatting
+    parameters:
+
+      - `delimiter`: a one-character string used to separate fields. It
+        defaults to `,`.
+
+      - `escapechar`: a one-character string that removes any special meaning
+        from the following character. It defaults to `None`.
+
+      - `quotechar`: a one-character string used to quote fields containing
+        special characters, such as the `delimiter` or the `quotechar`. It
+        defaults to `"`.
+
+    The returned object is an iterator. Each iteration returns a record, a
+    sequence of fields. These are implemented as lists of strings.
+    """
+    return Reader(source, **kwargs)
 
 
 class Reader(object):
 
-    def __init__(self, csvfile, **kwargs):
+    def __init__(self, source, **kwargs):
         settings = _settings(kwargs)
         try:
-            self.__reader = libfields.Reader(csvfile, settings)
+            self.__reader = libfields.Reader(source, settings)
             self.__record = libfields.Record(settings)
         except ValueError as e:
             raise Error(str(e))
