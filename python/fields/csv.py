@@ -28,7 +28,7 @@ def reader(source, **kwargs):
         defaults to `"`.
 
     The returned object is an iterator. Each iteration returns a record, a
-    sequence of fields. These are implemented as lists of strings.
+    sequence of fields. Records are implemented as lists of strings.
     """
     return Reader(source, **kwargs)
 
