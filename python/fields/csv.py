@@ -59,9 +59,9 @@ class Reader(object):
 
 def _settings(kwargs):
         def as_char(value):
-            return value if value else '\0'
+            return value or '\0'
         def as_int(value):
-            return 1 if value else 0
+            return int(bool(value))
         delimiter = kwargs.get('delimiter', ',')
         escape = kwargs.get('escapechar')
         quote = kwargs.get('quotechar', '"')
