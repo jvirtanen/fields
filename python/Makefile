@@ -15,6 +15,8 @@ all: test
 clean:
 	$(E) "  CLEAN    "
 	$(Q) find . -name *.pyc | xargs $(RM)
+	$(Q) $(RM) -r .tox/
+	$(Q) $(RM) MANIFEST
 .PHONY: clean
 
 test:
