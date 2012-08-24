@@ -15,7 +15,9 @@ LIB_OBJS += src/fields.o
 LIB_OBJS += src/fields_posix.o
 LIB_NAME := libfields
 
-LIB := $(LIB_NAME).so
+SHARED_SUFFIX := so
+
+LIB := $(LIB_NAME).$(SHARED_SUFFIX)
 
 V =
 ifeq ($(strip $(V)),)
