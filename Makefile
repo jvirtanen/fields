@@ -17,7 +17,7 @@ LIB_NAME := libfields
 
 SHARED_SUFFIX := so
 
-LIB := $(LIB_NAME).$(SHARED_SUFFIX)
+SHARED_LIB := $(LIB_NAME).$(SHARED_SUFFIX)
 
 V =
 ifeq ($(strip $(V)),)
@@ -33,16 +33,16 @@ all: test
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(LIB) $(LIB_OBJS)
+	$(Q) $(RM) $(LIB_OBJS) $(SHARED_LIB)
 	$(Q) cd python; $(MAKE) clean
 .PHONY: clean
 
-test: $(LIB)
+test: $(SHARED_LIB)
 	$(E) "  TEST     "
 	$(Q) cd python; $(MAKE) test
 .PHONY: test
 
-$(LIB): $(LIB_OBJS)
+$(SHARED_LIB): $(LIB_OBJS)
 	$(E) "  LINK     " $@
 	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
 
