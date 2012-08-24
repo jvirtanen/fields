@@ -4,6 +4,9 @@ Fields.py
 Fields.py is a Python binding to Fields, the fast C library for reading CSV
 and other tabular text formats.
 
+Fields.py is implemented using Python's `ctypes` module. As a consequence,
+it depends on an installation of Fields.
+
 
 Usage
 -----
