@@ -13,7 +13,9 @@ CFLAGS += -std=c99
 
 LIB_OBJS += src/fields.o
 LIB_OBJS += src/fields_posix.o
-LIB := libfields.so
+LIB_NAME := libfields
+
+LIB := $(LIB_NAME).so
 
 V =
 ifeq ($(strip $(V)),)
