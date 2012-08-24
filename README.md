@@ -64,7 +64,13 @@ See `include/fields.h` for reference documentation.
 Installation
 ------------
 
-Include `include/fields.h` and `src/fields.c` into your application.
+If you want to use Fields in a C application, you can simply copy the header
+and source files into its source tree. On the other hand, the Python binding,
+for example, depends on an installation of Fields. 
+
+Install to `/usr/local`:
+
+    make install
 
 
 History
