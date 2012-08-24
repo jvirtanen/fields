@@ -46,7 +46,7 @@ test: $(SHARED_LIB)
 
 $(SHARED_LIB): $(LIB_OBJS)
 	$(E) "  LINK     " $@
-	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
+	$(Q) $(CC) $(LDFLAGS) -shared -o $@ $^
 
 $(STATIC_LIB): $(LIB_OBJS)
 	$(E) "  ARCHIVE  " $@
