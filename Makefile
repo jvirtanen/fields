@@ -16,8 +16,10 @@ LIB_OBJS += src/fields_posix.o
 LIB_NAME := libfields
 
 SHARED_SUFFIX := so
+STATIC_SUFFIX := a
 
 SHARED_LIB := $(LIB_NAME).$(SHARED_SUFFIX)
+STATIC_LIB := $(LIB_NAME).$(STATIC_SUFFIX)
 
 V =
 ifeq ($(strip $(V)),)
@@ -28,12 +30,12 @@ else
 	Q :=
 endif
 
-all: test
+all: $(SHARED_LIB) $(STATIC_LIB) test
 .PHONY: all
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(LIB_OBJS) $(SHARED_LIB)
+	$(Q) $(RM) $(LIB_OBJS) $(SHARED_LIB) $(STATIC_LIB)
 	$(Q) cd python; $(MAKE) clean
 .PHONY: clean
 
@@ -45,6 +47,10 @@ test: $(SHARED_LIB)
 $(SHARED_LIB): $(LIB_OBJS)
 	$(E) "  LINK     " $@
 	$(Q) $(CC) $(CFLAGS) -shared -o $@ $^
+
+$(STATIC_LIB): $(LIB_OBJS)
+	$(E) "  ARCHIVE  " $@
+	$(Q) $(AR) rcs $@ $^
 
 %.o: %.c
 	$(E) "  COMPILE  " $@
