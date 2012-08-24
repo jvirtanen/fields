@@ -1,7 +1,10 @@
 import ctypes
 
 
-so = ctypes.CDLL('libfields.so')
+try:
+    so = ctypes.CDLL('libfields.so')
+except OSError:
+    so = ctypes.CDLL('libfields.dylib')
 
 
 class Field(ctypes.Structure):

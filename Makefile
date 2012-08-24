@@ -1,5 +1,7 @@
 CC ?= gcc
 
+uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+
 CFLAGS += -Iinclude
 CFLAGS += -O3
 CFLAGS += -Wall
@@ -17,6 +19,10 @@ LIB_NAME := libfields
 
 SHARED_SUFFIX := so
 STATIC_SUFFIX := a
+
+ifeq ($(uname_S),Darwin)
+	SHARED_SUFFIX := dylib
+endif
 
 SHARED_LIB := $(LIB_NAME).$(SHARED_SUFFIX)
 STATIC_LIB := $(LIB_NAME).$(STATIC_SUFFIX)
