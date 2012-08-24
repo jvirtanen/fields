@@ -21,5 +21,5 @@ clean:
 
 test:
 	$(E) "  TEST     "
-	$(Q) LD_LIBRARY_PATH=.. python test_fields.py
+	$(Q) LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
 .PHONY: test
