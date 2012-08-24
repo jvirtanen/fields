@@ -1,5 +1,7 @@
 CC ?= gcc
 
+PREFIX ?= /usr/local
+
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
 CFLAGS += -Iinclude
@@ -28,11 +30,14 @@ SHARED_LIB := $(LIB_NAME).$(SHARED_SUFFIX)
 STATIC_LIB := $(LIB_NAME).$(STATIC_SUFFIX)
 
 VERSION_MAJOR := 0
+VERSION_MINOR := 4.0
 
 SHARED_LIB_MAJOR := $(LIB_NAME).$(SHARED_SUFFIX).$(VERSION_MAJOR)
+SHARED_LIB_MINOR := $(SHARED_LIB_MAJOR).$(VERSION_MINOR)
 
 ifeq ($(uname_S),Darwin)
 	SHARED_LIB_MAJOR := $(LIB_NAME).$(VERSION_MAJOR).$(SHARED_SUFFIX)
+	SHARED_LIB_MINOR := $(LIB_NAME).$(VERSION_MAJOR).$(VERSION_MINOR).$(SHARED_SUFFIX)
 endif
 
 SONAME := -soname,$(SHARED_LIB_MAJOR)
@@ -50,7 +55,7 @@ else
 	Q :=
 endif
 
-all: $(SHARED_LIB) $(STATIC_LIB) test
+all: test
 .PHONY: all
 
 clean:
@@ -58,6 +63,16 @@ clean:
 	$(Q) $(RM) $(LIB_OBJS) $(SHARED_LIB) $(STATIC_LIB)
 	$(Q) cd python; $(MAKE) clean
 .PHONY: clean
+
+install: $(SHARED_LIB) $(STATIC_LIB)
+	$(E) "  INSTALL  "
+	$(Q) mkdir -p $(PREFIX)/include $(PREFIX)/lib
+	$(Q) cp include/fields.h include/fields_posix.h $(PREFIX)/include
+	$(Q) cp $(SHARED_LIB) $(PREFIX)/lib/$(SHARED_LIB_MINOR)
+	$(Q) cd $(PREFIX)/lib; ln -fs $(SHARED_LIB_MINOR) $(SHARED_LIB_MAJOR)
+	$(Q) cd $(PREFIX)/lib; ln -fs $(SHARED_LIB_MAJOR) $(SHARED_LIB)
+	$(Q) cp $(STATIC_LIB) $(PREFIX)/lib
+.PHONY: install
 
 test: $(SHARED_LIB)
 	$(E) "  TEST     "
