@@ -22,4 +22,5 @@ clean:
 test:
 	$(E) "  TEST     "
 	$(Q) LD_LIBRARY_PATH=.. $(PYTHON) test_fields.py
+	$(Q) LD_LIBRARY_PATH=.. $(PYTHON) -m doctest README.md
 .PHONY: test
