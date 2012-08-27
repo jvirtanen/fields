@@ -61,10 +61,9 @@ class Record(object):
     def field(self, index):
         field = Field()
         result = so.fields_record_field(self.c, index, ctypes.byref(field))
-        if result is 0:
-            return ctypes.string_at(field.value, field.length)
-        else:
-            return None
+        if result != 0:
+            raise IndexError
+        return ctypes.string_at(field.value, field.length)
 
     def size(self):
         return so.fields_record_size(self.c)
