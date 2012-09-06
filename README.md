@@ -21,22 +21,6 @@ Features
 Usage
 -----
 
-```c
-file = fopen("example.csv", "rb");
-
-reader = fields_read_file(file, &fields_csv);
-record = fields_record_alloc(&fields_csv);
-
-struct fields_field field;
-
-while (fields_reader_read(reader, record) == 0) {
-    for (unsigned i = 0; i < fields_record_size(record); i++) {
-        fields_record_field(record, i, &field);
-        puts(field.value);
-    }
-}
-```
-
 Fields reads data in ASCII-compatible encoding, such as UTF-8, from a buffer
 or file. The record separator may be either CR, LF or CRLF, and the field
 delimiter may be any ASCII character except CR or LF.
