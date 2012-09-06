@@ -1,11 +1,11 @@
-Fields.py
-=========
+Fields for Python
+=================
 
-Fields.py is a Python binding to Fields, the fast C library for reading CSV
-and other tabular text formats.
+Fields for Python is a Python binding to Fields, the fast C library for
+reading CSV and other tabular text formats.
 
-Fields.py is implemented using Python's `ctypes` module. As a consequence,
-it depends on an installation of Fields.
+Fields for Python is implemented using Python's `ctypes` module. As a
+consequence, it depends on an installation of Fields.
 
 
 Usage
@@ -31,4 +31,4 @@ Installation
 License
 -------
 
-Fields.py is released under the MIT License. See `LICENSE` for details.
+Fields for Python is released under the MIT License. See `LICENSE` for details.
