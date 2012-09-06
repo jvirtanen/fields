@@ -1,4 +1,5 @@
 CC ?= gcc
+LD := $(CC)
 
 PREFIX ?= /usr/local
 
@@ -46,6 +47,9 @@ ifeq ($(uname_S),Darwin)
 	SONAME := -install_name,$(SHARED_LIB_MAJOR)
 endif
 
+OBJS += examples/yahoo-finance.o
+PROG := examples/yahoo-finance
+
 V =
 ifeq ($(strip $(V)),)
 	E := @echo
@@ -55,14 +59,17 @@ else
 	Q :=
 endif
 
-all: test
+all: examples test
 .PHONY: all
 
 clean:
 	$(E) "  CLEAN    "
-	$(Q) $(RM) $(LIB_OBJS) $(SHARED_LIB) $(STATIC_LIB)
+	$(Q) $(RM) $(LIB_OBJS) $(OBJS) $(PROG) $(SHARED_LIB) $(STATIC_LIB)
 	$(Q) cd python; $(MAKE) clean
 .PHONY: clean
+
+examples: $(PROG)
+.PHONY: examples
 
 install: $(SHARED_LIB) $(STATIC_LIB)
 	$(E) "  INSTALL  "
@@ -86,6 +93,10 @@ $(SHARED_LIB): $(LIB_OBJS)
 $(STATIC_LIB): $(LIB_OBJS)
 	$(E) "  ARCHIVE  " $@
 	$(Q) $(AR) rcs $@ $^
+
+$(PROG): $(LIB_OBJS) $(OBJS)
+	$(E) "  LINK     " $@
+	$(Q) $(LD) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	$(E) "  COMPILE  " $@

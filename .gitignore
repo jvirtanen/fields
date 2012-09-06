@@ -1,2 +1,3 @@
 *.o
 /libfields.*
+/examples/yahoo-finance
