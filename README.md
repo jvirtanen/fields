@@ -4,20 +4,6 @@ Fields
 Fields is a fast C library for reading CSV and other tabular text formats.
 
 
-Features
---------
-
-  - Quoted fields
-
-  - Escaped characters
-
-  - Simple API
-
-  - Zero dependencies
-
-  - Liberal license
-
-
 Usage
 -----
 
