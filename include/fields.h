@@ -201,16 +201,8 @@ struct fields_settings
     char    delimiter;
 
     /*
-     * The escape character. Must not be `\n`, `\r` or the delimiter character.
-     * Set to `\0` to disable escaping. If escaping is enabled, quoting must be
-     * disabled.
-     */
-    char    escape;
-
-    /*
      * The quote character. Must not be `\n`, `\r` or the delimiter character.
-     * Set to `\0` to disable quoting. If quoting is enabled, escaping must be
-     * disabled.
+     * Set to `\0` to disable quoting.
      */
     char    quote;
 
@@ -269,7 +261,6 @@ const char *fields_settings_strerror(int);
 enum fields_settings_error
 {
     FIELDS_SETTINGS_ERROR_DELIMITER          = 1,
-    FIELDS_SETTINGS_ERROR_ESCAPE             = 2,
     FIELDS_SETTINGS_ERROR_QUOTE              = 3,
     FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE   = 4,
     FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 5,

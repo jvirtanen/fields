@@ -11,19 +11,18 @@ Fields reads data in ASCII-compatible encoding, such as UTF-8, from a buffer
 or file. The record separator may be either CR, LF or CRLF, and the field
 delimiter may be any ASCII character except CR or LF.
 
-Fields supports two methods of embedding field delimiters and record separators
-into fields: quoting and escaping. When quoting, a field containing a field
-delimiter, record separator or quote character must be enclosed within quote
-characters. Additionally, a quote character within a field must be escaped
-with another quote character. When escaping, any character preceded by the
-escape character is interpreted literally. The quote character or escape
-character may be any ASCII character except the field delimiter, CR or LF.
+Fields supports one method of embedding field delimiters and record separators
+into fields: quoting. When quoting, a field containing a field delimiter,
+record separator or quote character must be enclosed within quote characters.
+Additionally, a quote character within a field must be escaped with another
+quote character. The quote character  may be any ASCII character except the
+field delimiter, CR or LF.
 
 Given the field delimiter is set to `,` and the quote character to `"`
 (built-in configuration `fields_csv`), Fields reads data that is in compliance
-with [RFC 4180][]. Given the field delimiter is set to HT and quoting and
-escaping are disabled (built-in configuration `fields_tsv`), Fields reads data
-that is in compliance with the [text/tab-separated-values][TSV] MIME type.
+with [RFC 4180][]. Given the field delimiter is set to HT and quoting is
+disabled (built-in configuration `fields_tsv`), Fields reads data that is in
+compliance with the [text/tab-separated-values][TSV] MIME type.
 
 See `include/fields.h` for reference documentation.
 

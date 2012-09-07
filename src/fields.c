@@ -35,7 +35,6 @@ struct fields_reader
     fields_source_read_fn * source_read;
     fields_source_free_fn * source_free;
     char                    delimiter;
-    char                    escape;
     char                    quote;
     fields_parse_fn *       parse;
     const char *            buffer;
@@ -173,7 +172,6 @@ fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
     self->source_read = read_fn;
     self->source_free = free_fn;
     self->delimiter = settings->delimiter;
-    self->escape = settings->escape;
     self->quote = settings->quote;
     self->parse = fields_settings_parser(settings);
     self->buffer = NULL;
@@ -453,7 +451,6 @@ fields_record_normalize(struct fields_record *self)
 const struct fields_settings fields_csv =
 {
     .delimiter          = ',',
-    .escape             = '\0',
     .quote              = '"',
     .expand             = true,
     .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
@@ -464,7 +461,6 @@ const struct fields_settings fields_csv =
 const struct fields_settings fields_tsv =
 {
     .delimiter          = '\t',
-    .escape             = '\0',
     .quote              = '\0',
     .expand             = true,
     .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
@@ -481,15 +477,6 @@ fields_settings_error(const struct fields_settings *settings)
     if (settings->delimiter == '\r')
         return FIELDS_SETTINGS_ERROR_DELIMITER;
 
-    if (settings->escape == '\n')
-        return FIELDS_SETTINGS_ERROR_ESCAPE;
-
-    if (settings->escape == '\r')
-        return FIELDS_SETTINGS_ERROR_ESCAPE;
-
-    if (settings->escape == settings->delimiter)
-        return FIELDS_SETTINGS_ERROR_ESCAPE;
-
     if (settings->quote == '\n')
         return FIELDS_SETTINGS_ERROR_QUOTE;
 
@@ -497,9 +484,6 @@ fields_settings_error(const struct fields_settings *settings)
         return FIELDS_SETTINGS_ERROR_QUOTE;
 
     if (settings->quote == settings->delimiter)
-        return FIELDS_SETTINGS_ERROR_QUOTE;
-
-    if ((settings->quote != '\0') && (settings->escape != '\0'))
         return FIELDS_SETTINGS_ERROR_QUOTE;
 
     if (settings->file_buffer_size < FIELDS_MINIMUM_FILE_BUFFER_SIZE)
@@ -520,8 +504,6 @@ fields_settings_strerror(int error)
     switch (error) {
     case FIELDS_SETTINGS_ERROR_DELIMITER:
         return "Bad field delimiter";
-    case FIELDS_SETTINGS_ERROR_ESCAPE:
-        return "Bad escape character";
     case FIELDS_SETTINGS_ERROR_QUOTE:
         return "Bad quote character";
     case FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE:
@@ -557,9 +539,6 @@ static int
 fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record)
 {
     char delimiter;
-    char escape;
-
-    bool escaped;
 
     const char *rp;
     const char *rq;
@@ -568,9 +547,6 @@ fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record
     const char *wq;
 
     delimiter = reader->delimiter;
-    escape = reader->escape;
-
-    escaped = false;
 
     rp = reader->cursor;
     rq = fields_reader_end(reader);
@@ -582,23 +558,15 @@ fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record
 
     while (true) {
         while ((rp != rq) && (wp != wq)) {
-            if (escaped) {
-                escaped = false;
-                *wp++ = *rp++;
-            }
-            else if ((*rp == escape) && (escape != '\0')) {
-                rp++;
-                escaped = true;
-            }
-            else if (fields_crlf(*rp))
-                return fields_parse_crlf(reader, record, rp, wp);
-            else if (*rp == delimiter) {
+            if (*rp == delimiter) {
                 *wp++ = '\0';
                 rp++;
                 if (fields_record_push(record, wp) != 0)
                     return fields_parse_fail(reader, record,
                         FIELDS_READER_ERROR_TOO_MANY_FIELDS);
             }
+            else if (fields_crlf(*rp))
+                return fields_parse_crlf(reader, record, rp, wp);
             else
                 *wp++ = *rp++;
         }

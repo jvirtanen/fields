@@ -75,7 +75,6 @@ Record_p = ctypes.c_void_p
 class Settings(ctypes.Structure):
     _fields_ = [
         ('delimiter',           ctypes.c_char),
-        ('escape',              ctypes.c_char),
         ('quote',               ctypes.c_char),
         ('expand',              ctypes.c_int),
         ('file_buffer_size',    ctypes.c_size_t),

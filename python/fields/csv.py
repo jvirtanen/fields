@@ -20,9 +20,6 @@ def reader(source, **kwargs):
       - `delimiter`: a one-character string used to separate fields. It
         defaults to `,`.
 
-      - `escapechar`: a one-character string that removes any special meaning
-        from the following character. It defaults to `None`.
-
       - `quotechar`: a one-character string used to quote fields containing
         special characters, such as the `delimiter` or the `quotechar`. It
         defaults to `"`.
@@ -63,7 +60,6 @@ def _settings(kwargs):
         def as_int(value):
             return int(bool(value))
         delimiter = kwargs.get('delimiter', ',')
-        escape = kwargs.get('escapechar')
         quote = kwargs.get('quotechar', '"')
         expand = kwargs.get('_expand', True)
         file_buffer_size = kwargs.get('_file_buffer_size', 4 * 1024)
@@ -71,7 +67,6 @@ def _settings(kwargs):
         record_max_fields = kwargs.get('_record_max_fields', 1023)
         return libfields.Settings(
             as_char(delimiter),
-            as_char(escape),
             as_char(quote),
             as_int(expand),
             file_buffer_size,

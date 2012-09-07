@@ -36,15 +36,6 @@ class SettingsTest(TestCase):
     def test_lf_as_delimiter(self):
         self.assertFail('Bad field delimiter', delimiter='\n')
 
-    def test_cr_as_escape(self):
-        self.assertFail('Bad escape character', escapechar='\r')
-
-    def test_lf_as_escape(self):
-        self.assertFail('Bad escape character', escapechar='\n')
-
-    def test_equal_delimiter_and_escape(self):
-        self.assertFail('Bad escape character', delimiter=',', escapechar=',')
-
     def test_cr_as_quote(self):
         self.assertFail('Bad quote character', quotechar='\r')
 
@@ -53,9 +44,6 @@ class SettingsTest(TestCase):
 
     def test_equal_delimiter_and_quote(self):
         self.assertFail('Bad quote character', delimiter=',', quotechar=',')
-
-    def test_simultaneous_escape_and_quote(self):
-        self.assertFail('Bad quote character', escapechar='x', quotechar='y')
 
     def assertFail(self, message, **settings):
         try:
@@ -132,8 +120,7 @@ class CSVTest(TestCase):
     def setUp(self):
         self.settings = {
             'delimiter' : ',',
-            'quotechar' : '"',
-            'escapechar': None
+            'quotechar' : '"'
         }
 
 
@@ -163,23 +150,13 @@ class TSVTest(TestCase):
     def test_empty_record(self):
         self.assertParseEqual('a\tb\n\nc', [['a', 'b'], [], ['c']])
 
-    def test_escaped_delimiter(self):
-        self.assertParseEqual('a\\\tb\nc', [['a\tb'], ['c']])
-
-    def test_escaped_lf(self):
-        self.assertParseEqual('a\tb\\\nc', [['a', 'b\nc']])
-
-    def test_terminating_escape(self):
-        self.assertParseEqual('a\tb\nc\\', [['a', 'b'], ['c']])
-
     def test_csv(self):
         self.assertParseEqual('a,b\nc\n', [['a,b'], ['c']])
 
     def setUp(self):
         self.settings = {
             'delimiter' : '\t',
-            'quotechar' : None,
-            'escapechar': '\\'
+            'quotechar' : None
         }
 
 
