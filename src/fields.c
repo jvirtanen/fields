@@ -914,11 +914,11 @@ fields_file_free(void *source)
 static inline bool
 fields_crlf(char ch)
 {
-    return (ch == '\n') || (ch == '\r');
+    return (ch == 10) || (ch == 13);
 }
 
 static inline bool
 fields_whitespace(char ch)
 {
-    return (ch == ' ') || (ch == '\t');
+    return (ch == 9) || (ch == 32);
 }
