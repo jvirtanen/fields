@@ -7,27 +7,31 @@ Fields is a fast C library for reading CSV and other tabular text formats.
 Usage
 -----
 
-Fields reads data in ASCII-compatible encoding, such as UTF-8, from a buffer
-or file. The record separator may be either CR, LF or CRLF, and the field
-delimiter may be any ASCII character except CR or LF.
+Fields reads records from a source, such as a file or a buffer. Each record
+contains zero or more fields. Records are separated by record separators and
+fields by field delimiters.
 
-Fields supports one method of embedding field delimiters and record separators
-into fields: quoting. When quoting, a field containing a field delimiter,
-record separator or quote character must be enclosed within quote characters.
-Additionally, a quote character within a field must be escaped with another
-quote character. The quote character  may be any ASCII character except the
-field delimiter, CR or LF.
+Data read from the source must be in ASCII-compatible encoding, such as UTF-8.
+The record separator may be either a carriage return (CR, Mac OS), a line feed
+(LF, Unix) or a CRLF (Windows). The field delimiter can be set to any character
+except CR or LF.
 
-Given the field delimiter is set to `,` and the quote character to `"`
-(built-in configuration `fields_csv`), Fields reads data that is in compliance
-with [RFC 4180][]. Given the field delimiter is set to HT and quoting is
-disabled (built-in configuration `fields_tsv`), Fields reads data that is in
-compliance with the [text/tab-separated-values][TSV] MIME type.
+Field delimiters and record separators can be embedded into quoted fields. A
+quoted field starts and ends with the quote character, and quote characters
+within quoted fields must be doubled. The quote character can be set to any
+character except the field delimiter, CR or LF. If the quote character is set
+to the null character (NUL), quoting is disabled.
 
-See `include/fields.h` for reference documentation.
+Given the field delimiter is set to `,` and the quote character to `"` (the
+built-in configuration `fields_csv`), Fields reads data that is in compliance
+with [RFC 4180][]. Given the field delimiter is set to the tab character (HT)
+and quoting is disabled (the built-in configuration `fields_tsv`), Fields reads
+data that is in compliance with the [text/tab-separated-values][TSV] MIME type.
 
   [RFC 4180]: http://tools.ietf.org/html/rfc4180
   [TSV]:      http://www.iana.org/assignments/media-types/text/tab-separated-values
+
+See the header files in the `include` directory for reference documentation.
 
 
 Installation
