@@ -54,6 +54,23 @@ struct fields_record;
 struct fields_settings;
 
 /*
+ * Default Settings
+ * ----------------
+ */
+
+/*
+ * Comma-separated values (CSV): a comma (`,`) is used as the delimiter and a
+ * double quote (`"`) for quoting.
+ */
+extern const struct fields_settings fields_csv;
+
+/*
+ * Tab-separated values (TSV): a tab (`\t`) is used as the delimiter and
+ * quoting is disabled.
+ */
+extern const struct fields_settings fields_tsv;
+
+/*
  * Readers
  * -------
  */
@@ -170,23 +187,6 @@ int fields_record_field(const struct fields_record *, unsigned int,
  * Returns the number of fields in the record.
  */
 size_t fields_record_size(const struct fields_record *);
-
-/*
- * Default Settings
- * ----------------
- */
-
-/*
- * Comma-separated values (CSV): a comma (`,`) is used as the delimiter and a
- * double quote (`"`) for quoting.
- */
-extern const struct fields_settings fields_csv;
-
-/*
- * Tab-separated values (TSV): a tab (`\t`) is used as the delimiter and
- * quoting is disabled.
- */
-extern const struct fields_settings fields_tsv;
 
 /*
  * Custom Settings
