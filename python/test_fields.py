@@ -177,7 +177,7 @@ class LimitsWithoutExpansionTest(TestCase):
     def setUp(self):
         self.settings = {
             '_expand'            : False,
-            '_file_buffer_size'  : 1024,
+            '_source_buffer_size': 1024,
             '_record_max_fields' : 16,
             '_record_buffer_size': 1024
         }
@@ -203,7 +203,7 @@ class LimitsWithExpansionTest(TestCase):
     def setUp(self):
         self.settings = {
             '_expand'            : True,
-            '_file_buffer_size'  : 1024,
+            '_source_buffer_size': 1024,
             '_record_max_fields' : 16,
             '_record_buffer_size': 1024
         }

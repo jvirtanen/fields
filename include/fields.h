@@ -215,9 +215,9 @@ struct fields_settings
     int     expand;
 
     /*
-     * Size of the buffer within a file source.
+     * Size of the buffer within a source.
      */
-    size_t  file_buffer_size;
+    size_t  source_buffer_size;
 
     /*
      * Size of the buffer within a record.
@@ -230,8 +230,8 @@ struct fields_settings
     size_t  record_max_fields;
 };
 
-#define FIELDS_MINIMUM_FILE_BUFFER_SIZE (1024)
-#define FIELDS_DEFAULT_FILE_BUFFER_SIZE (4 * 1024)
+#define FIELDS_MINIMUM_SOURCE_BUFFER_SIZE (1024)
+#define FIELDS_DEFAULT_SOURCE_BUFFER_SIZE (4 * 1024)
 
 #define FIELDS_MINIMUM_RECORD_BUFFER_SIZE (1024)
 #define FIELDS_DEFAULT_RECORD_BUFFER_SIZE (1024 * 1024)
@@ -262,7 +262,7 @@ enum fields_settings_error
 {
     FIELDS_SETTINGS_ERROR_DELIMITER          = 1,
     FIELDS_SETTINGS_ERROR_QUOTE              = 2,
-    FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE   = 3,
+    FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE = 3,
     FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 4,
     FIELDS_SETTINGS_ERROR_RECORD_MAX_FIELDS  = 5
 };

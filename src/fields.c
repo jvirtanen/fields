@@ -141,7 +141,7 @@ fields_read_file(FILE *file, const struct fields_settings *settings)
     struct fields_reader *reader;
     struct fields_file *source;
 
-    source = fields_file_alloc(file, settings->file_buffer_size);
+    source = fields_file_alloc(file, settings->source_buffer_size);
     if (source == NULL)
         return NULL;
 
@@ -453,7 +453,7 @@ const struct fields_settings fields_csv =
     .delimiter          = ',',
     .quote              = '"',
     .expand             = true,
-    .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
+    .source_buffer_size = FIELDS_DEFAULT_SOURCE_BUFFER_SIZE,
     .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
     .record_max_fields  = FIELDS_DEFAULT_RECORD_MAX_FIELDS
 };
@@ -463,7 +463,7 @@ const struct fields_settings fields_tsv =
     .delimiter          = '\t',
     .quote              = '\0',
     .expand             = true,
-    .file_buffer_size   = FIELDS_DEFAULT_FILE_BUFFER_SIZE,
+    .source_buffer_size = FIELDS_DEFAULT_SOURCE_BUFFER_SIZE,
     .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
     .record_max_fields  = FIELDS_DEFAULT_RECORD_MAX_FIELDS
 };
@@ -486,8 +486,8 @@ fields_settings_error(const struct fields_settings *settings)
     if (settings->quote == settings->delimiter)
         return FIELDS_SETTINGS_ERROR_QUOTE;
 
-    if (settings->file_buffer_size < FIELDS_MINIMUM_FILE_BUFFER_SIZE)
-        return FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE;
+    if (settings->source_buffer_size < FIELDS_MINIMUM_SOURCE_BUFFER_SIZE)
+        return FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE;
 
     if (settings->record_buffer_size < FIELDS_MINIMUM_RECORD_BUFFER_SIZE)
         return FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE;
@@ -506,8 +506,8 @@ fields_settings_strerror(int error)
         return "Bad field delimiter";
     case FIELDS_SETTINGS_ERROR_QUOTE:
         return "Bad quote character";
-    case FIELDS_SETTINGS_ERROR_FILE_BUFFER_SIZE:
-        return "Too low file buffer size";
+    case FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE:
+        return "Too low source buffer size";
     case FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE:
         return "Too low record buffer size";
     case FIELDS_SETTINGS_ERROR_RECORD_MAX_FIELDS:

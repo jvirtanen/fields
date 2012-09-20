@@ -77,7 +77,7 @@ class Settings(ctypes.Structure):
         ('delimiter',           ctypes.c_char),
         ('quote',               ctypes.c_char),
         ('expand',              ctypes.c_int),
-        ('file_buffer_size',    ctypes.c_size_t),
+        ('source_buffer_size',  ctypes.c_size_t),
         ('record_buffer_size',  ctypes.c_size_t),
         ('record_max_fields',   ctypes.c_size_t)
     ]

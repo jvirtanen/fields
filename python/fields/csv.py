@@ -62,14 +62,14 @@ def _settings(kwargs):
         delimiter = kwargs.get('delimiter', ',')
         quote = kwargs.get('quotechar', '"')
         expand = kwargs.get('_expand', True)
-        file_buffer_size = kwargs.get('_file_buffer_size', 4 * 1024)
+        source_buffer_size = kwargs.get('_source_buffer_size', 4 * 1024)
         record_buffer_size = kwargs.get('_record_buffer_size', 1024 * 1024)
         record_max_fields = kwargs.get('_record_max_fields', 1023)
         return libfields.Settings(
             as_char(delimiter),
             as_char(quote),
             as_int(expand),
-            file_buffer_size,
+            source_buffer_size,
             record_buffer_size,
             record_max_fields
         )
