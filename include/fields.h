@@ -51,22 +51,27 @@ struct fields_reader;
 
 struct fields_record;
 
-struct fields_settings;
-
 /*
- * Default Settings
- * ----------------
+ * Settings
+ * --------
  */
 
 /*
- * Comma-separated values (CSV): a comma (`,`) is used as the delimiter and a
- * double quote (`"`) for quoting.
+ * Settings specify the input format and the reader and record configuration.
+ */
+struct fields_settings;
+
+/*
+ * Use comma-separated values (CSV) as the input format with the default
+ * reader and record configuration. A comma (`,`) is used as the delimiter
+ * and a double quote (`"`) for quoting.
  */
 extern const struct fields_settings fields_csv;
 
 /*
- * Tab-separated values (TSV): a tab (`\t`) is used as the delimiter and
- * quoting is disabled.
+ * Use tab-separated values (TSV) as the input format with the default reader
+ * and record configuration. A tab (`\t`) is used as the delimiter and quoting
+ * is disabled.
  */
 extern const struct fields_settings fields_tsv;
 
