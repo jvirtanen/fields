@@ -47,8 +47,6 @@ struct fields_field
     size_t      length;
 };
 
-struct fields_record;
-
 /*
  * Settings
  * --------
@@ -72,6 +70,55 @@ extern const struct fields_settings fields_csv;
  * is disabled.
  */
 extern const struct fields_settings fields_tsv;
+
+/*
+ * Records
+ * -------
+ */
+
+/*
+ * A record is a sequence of zero or more fields.
+ */
+struct fields_record;
+
+/*
+ * Allocate a record.
+ *
+ * - settings: the settings for the record
+ *
+ * If successful, returns a record object. Otherwise returns `NULL`.
+ */
+struct fields_record *fields_record_alloc(const struct fields_settings *);
+
+/*
+ * Deallocate the record.
+ *
+ * - record: the record object
+ */
+void fields_record_free(struct fields_record *);
+
+/*
+ * Get the field at the specified index. If successful, the operation updates
+ * the field object. Otherwise the operation does not alter the field object.
+ * The operation fails if the index is too large.
+ *
+ * - record: the record object
+ * - index:  an index
+ * - field:  a field object
+ *
+ * If successful, returns zero. Otherwise returns non-zero.
+ */
+int fields_record_field(const struct fields_record *, unsigned int,
+    struct fields_field *);
+
+/*
+ * Get the number of fields in the record.
+ *
+ * - record: the record object
+ *
+ * Returns the number of fields in the record.
+ */
+size_t fields_record_size(const struct fields_record *);
 
 /*
  * Readers
@@ -151,50 +198,6 @@ enum fields_reader_error
     FIELDS_READER_ERROR_UNEXPECTED_CHARACTER = 3,
     FIELDS_READER_ERROR_UNREADABLE_SOURCE    = 4
 };
-
-/*
- * Records
- * -------
- */
-
-/*
- * Allocate a record.
- *
- * - settings: the settings for the record
- *
- * If successful, returns a record object. Otherwise returns `NULL`.
- */
-struct fields_record *fields_record_alloc(const struct fields_settings *);
-
-/*
- * Deallocate the record.
- *
- * - record: the record object
- */
-void fields_record_free(struct fields_record *);
-
-/*
- * Get the field at the specified index. If successful, the operation updates
- * the field object. Otherwise the operation does not alter the field object.
- * The operation fails if the index is too large.
- *
- * - record: the record object
- * - index:  an index
- * - field:  a field object
- *
- * If successful, returns zero. Otherwise returns non-zero.
- */
-int fields_record_field(const struct fields_record *, unsigned int,
-    struct fields_field *);
-
-/*
- * Get the number of fields in the record.
- *
- * - record: the record object
- *
- * Returns the number of fields in the record.
- */
-size_t fields_record_size(const struct fields_record *);
 
 /*
  * Custom Settings

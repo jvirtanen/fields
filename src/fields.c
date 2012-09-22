@@ -29,6 +29,24 @@
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
+struct fields_record
+{
+    char *  buffer;
+    size_t  buffer_size;
+    char ** fields;
+    size_t  num_fields;
+    size_t  max_fields;
+    bool    expand;
+};
+
+static const char *fields_record_end(const struct fields_record *);
+static void fields_record_init(struct fields_record *);
+static char *fields_record_expand(struct fields_record *, char *);
+static int fields_record_push(struct fields_record *, char *);
+static char *fields_record_pop(struct fields_record *);
+static void fields_record_finish(struct fields_record *, char *);
+static void fields_record_normalize(struct fields_record *);
+
 struct fields_reader
 {
     void *                  source;
@@ -47,24 +65,6 @@ struct fields_reader
 static const char *fields_reader_end(const struct fields_reader *);
 static int fields_reader_fill(struct fields_reader *);
 static void fields_reader_skip(struct fields_reader *);
-
-struct fields_record
-{
-    char *  buffer;
-    size_t  buffer_size;
-    char ** fields;
-    size_t  num_fields;
-    size_t  max_fields;
-    bool    expand;
-};
-
-static const char *fields_record_end(const struct fields_record *);
-static void fields_record_init(struct fields_record *);
-static char *fields_record_expand(struct fields_record *, char *);
-static int fields_record_push(struct fields_record *, char *);
-static char *fields_record_pop(struct fields_record *);
-static void fields_record_finish(struct fields_record *, char *);
-static void fields_record_normalize(struct fields_record *);
 
 static fields_parse_fn *fields_settings_parser(const struct fields_settings *);
 
@@ -108,164 +108,6 @@ enum fields_state {
 
 static inline bool fields_crlf(char);
 static inline bool fields_whitespace(char);
-
-/*
- * Readers
- * =======
- */
-
-struct fields_reader *
-fields_read_buffer(const char *buffer, size_t buffer_size,
-    const struct fields_settings *settings)
-{
-    struct fields_reader *reader;
-    struct fields_buffer *source;
-
-    source = fields_buffer_alloc(buffer, buffer_size);
-    if (source == NULL)
-        return NULL;
-
-    reader = fields_reader_alloc(source, &fields_buffer_read,
-        &fields_buffer_free, settings);
-    if (reader == NULL) {
-        fields_buffer_free(source);
-        return NULL;
-    }
-
-    return reader;
-}
-
-struct fields_reader *
-fields_read_file(FILE *file, const struct fields_settings *settings)
-{
-    struct fields_reader *reader;
-    struct fields_file *source;
-
-    source = fields_file_alloc(file, settings->source_buffer_size);
-    if (source == NULL)
-        return NULL;
-
-    reader = fields_reader_alloc(source, &fields_file_read, &fields_file_free,
-        settings);
-    if (reader == NULL) {
-        fields_file_free(source);
-        return NULL;
-    }
-
-    return reader;
-}
-
-struct fields_reader *
-fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
-    fields_source_free_fn *free_fn, const struct fields_settings *settings)
-{
-    struct fields_reader *self;
-
-    if (fields_settings_error(settings) != 0)
-        return NULL;
-
-    self = malloc(sizeof(*self));
-    if (self == NULL)
-        return NULL;
-
-    self->source = source;
-    self->source_read = read_fn;
-    self->source_free = free_fn;
-    self->delimiter = settings->delimiter;
-    self->quote = settings->quote;
-    self->parse = fields_settings_parser(settings);
-    self->buffer = NULL;
-    self->buffer_size = 0;
-    self->cursor = NULL;
-    self->skip = '\0';
-    self->error = 0;
-
-    return self;
-}
-
-void
-fields_reader_free(struct fields_reader *self)
-{
-    self->source_free(self->source);
-
-    free(self);
-}
-
-static const char *
-fields_reader_end(const struct fields_reader *self)
-{
-    return self->buffer + self->buffer_size;
-}
-
-static int
-fields_reader_fill(struct fields_reader *self)
-{
-    int result;
-
-    result = self->source_read(self->source, &self->buffer, &self->buffer_size);
-    self->cursor = self->buffer;
-
-    if (result != 0) {
-        self->error = FIELDS_READER_ERROR_UNREADABLE_SOURCE;
-        return FIELDS_FAILURE;
-    }
-
-    return 0;
-}
-
-static void
-fields_reader_skip(struct fields_reader *self)
-{
-    if (self->skip == '\0')
-        return;
-
-    if (self->cursor == fields_reader_end(self))
-        return;
-
-    if (self->skip != *self->cursor)
-        return;
-
-    self->cursor++;
-    self->skip = '\0';
-}
-
-int
-fields_reader_read(struct fields_reader *self, struct fields_record *record)
-{
-    if (fields_parse_start(self, record) != 0)
-        return FIELDS_FAILURE;
-
-    fields_record_init(record);
-
-    return self->parse(self, record);
-}
-
-int
-fields_reader_error(const struct fields_reader *self)
-{
-    return self->error;
-}
-
-const char *
-fields_reader_strerror(int error)
-{
-    switch (error) {
-    case FIELDS_READER_ERROR_TOO_BIG_RECORD:
-        return "Too big record";
-    case FIELDS_READER_ERROR_TOO_MANY_FIELDS:
-        return "Too many fields";
-    case FIELDS_READER_ERROR_UNEXPECTED_CHARACTER:
-        return "Unexpected character";
-    case FIELDS_READER_ERROR_UNREADABLE_SOURCE:
-        return "Unreadable source";
-    case 0:
-        return "";
-    default:
-        break;
-    }
-
-    return "Unknown error";
-}
 
 /*
  * Records
@@ -441,6 +283,164 @@ fields_record_normalize(struct fields_record *self)
         if (field.length == 0)
             fields_record_pop(self);
     }
+}
+
+/*
+ * Readers
+ * =======
+ */
+
+struct fields_reader *
+fields_read_buffer(const char *buffer, size_t buffer_size,
+    const struct fields_settings *settings)
+{
+    struct fields_reader *reader;
+    struct fields_buffer *source;
+
+    source = fields_buffer_alloc(buffer, buffer_size);
+    if (source == NULL)
+        return NULL;
+
+    reader = fields_reader_alloc(source, &fields_buffer_read,
+        &fields_buffer_free, settings);
+    if (reader == NULL) {
+        fields_buffer_free(source);
+        return NULL;
+    }
+
+    return reader;
+}
+
+struct fields_reader *
+fields_read_file(FILE *file, const struct fields_settings *settings)
+{
+    struct fields_reader *reader;
+    struct fields_file *source;
+
+    source = fields_file_alloc(file, settings->source_buffer_size);
+    if (source == NULL)
+        return NULL;
+
+    reader = fields_reader_alloc(source, &fields_file_read, &fields_file_free,
+        settings);
+    if (reader == NULL) {
+        fields_file_free(source);
+        return NULL;
+    }
+
+    return reader;
+}
+
+struct fields_reader *
+fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
+    fields_source_free_fn *free_fn, const struct fields_settings *settings)
+{
+    struct fields_reader *self;
+
+    if (fields_settings_error(settings) != 0)
+        return NULL;
+
+    self = malloc(sizeof(*self));
+    if (self == NULL)
+        return NULL;
+
+    self->source = source;
+    self->source_read = read_fn;
+    self->source_free = free_fn;
+    self->delimiter = settings->delimiter;
+    self->quote = settings->quote;
+    self->parse = fields_settings_parser(settings);
+    self->buffer = NULL;
+    self->buffer_size = 0;
+    self->cursor = NULL;
+    self->skip = '\0';
+    self->error = 0;
+
+    return self;
+}
+
+void
+fields_reader_free(struct fields_reader *self)
+{
+    self->source_free(self->source);
+
+    free(self);
+}
+
+static const char *
+fields_reader_end(const struct fields_reader *self)
+{
+    return self->buffer + self->buffer_size;
+}
+
+static int
+fields_reader_fill(struct fields_reader *self)
+{
+    int result;
+
+    result = self->source_read(self->source, &self->buffer, &self->buffer_size);
+    self->cursor = self->buffer;
+
+    if (result != 0) {
+        self->error = FIELDS_READER_ERROR_UNREADABLE_SOURCE;
+        return FIELDS_FAILURE;
+    }
+
+    return 0;
+}
+
+static void
+fields_reader_skip(struct fields_reader *self)
+{
+    if (self->skip == '\0')
+        return;
+
+    if (self->cursor == fields_reader_end(self))
+        return;
+
+    if (self->skip != *self->cursor)
+        return;
+
+    self->cursor++;
+    self->skip = '\0';
+}
+
+int
+fields_reader_read(struct fields_reader *self, struct fields_record *record)
+{
+    if (fields_parse_start(self, record) != 0)
+        return FIELDS_FAILURE;
+
+    fields_record_init(record);
+
+    return self->parse(self, record);
+}
+
+int
+fields_reader_error(const struct fields_reader *self)
+{
+    return self->error;
+}
+
+const char *
+fields_reader_strerror(int error)
+{
+    switch (error) {
+    case FIELDS_READER_ERROR_TOO_BIG_RECORD:
+        return "Too big record";
+    case FIELDS_READER_ERROR_TOO_MANY_FIELDS:
+        return "Too many fields";
+    case FIELDS_READER_ERROR_UNEXPECTED_CHARACTER:
+        return "Unexpected character";
+    case FIELDS_READER_ERROR_UNREADABLE_SOURCE:
+        return "Unreadable source";
+    case 0:
+        return "";
+    default:
+        break;
+    }
+
+    return "Unknown error";
 }
 
 /*
