@@ -215,6 +215,9 @@ int fields_reader_error(const struct fields_reader *);
  */
 const char *fields_reader_strerror(int);
 
+/*
+ * The error codes for a reader.
+ */
 enum fields_reader_error
 {
     FIELDS_READER_ERROR_TOO_BIG_RECORD       = 1,
