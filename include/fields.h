@@ -41,12 +41,6 @@ extern "C" {
 
 #define FIELDS_VERSION "0.4.0"
 
-struct fields_field
-{
-    const char *value;
-    size_t      length;
-};
-
 /*
  * Settings
  * --------
@@ -70,6 +64,17 @@ extern const struct fields_settings fields_csv;
  * is disabled.
  */
 extern const struct fields_settings fields_tsv;
+
+/*
+ * Fields
+ * ------
+ */
+
+struct fields_field
+{
+    const char *value;
+    size_t      length;
+};
 
 /*
  * Records
