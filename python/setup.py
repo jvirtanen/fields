@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='fields',
-    version='0.4.0',
+    version='0.5.0',
     description='Python binding to Fields, ' \
         + 'the fast C library for reading CSV and other tabular text formats',
     url='https://github.com/jvirtanen/fields',

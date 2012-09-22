@@ -47,6 +47,16 @@ The default installation location is `/usr/local`. Override it with `$PREFIX`:
 History
 -------
 
+0.5.0 (2012-09-22)
+  - Improve documentation.
+  - Rename `file_buffer_size` to `source_buffer_size`.
+  - Fix handling of CR and LF.
+  - Remove escape characters.
+  - Add example.
+  - Add `make install` target.
+  - Improve Python API.
+  - Rename Sheets to Fields.
+
 0.4.0 (2012-07-03)
   - Add record expansion.
   - Add Python API.
