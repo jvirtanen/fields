@@ -296,6 +296,9 @@ int fields_settings_error(const struct fields_settings *);
  */
 const char *fields_settings_strerror(int);
 
+/*
+ * The error codes for settings.
+ */
 enum fields_settings_error
 {
     FIELDS_SETTINGS_ERROR_DELIMITER          = 1,
