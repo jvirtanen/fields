@@ -47,8 +47,6 @@ struct fields_field
     size_t      length;
 };
 
-struct fields_reader;
-
 struct fields_record;
 
 /*
@@ -79,6 +77,11 @@ extern const struct fields_settings fields_tsv;
  * Readers
  * -------
  */
+
+/*
+ * A reader reads records from a source, such as a buffer or a file.
+ */
+struct fields_reader;
 
 /*
  * Allocate a reader that reads from the specified buffer. The operation fails
