@@ -70,10 +70,21 @@ extern const struct fields_settings fields_tsv;
  * ------
  */
 
+/*
+ * A field is a sequence of zero or more bytes.
+ */
 struct fields_field
 {
+    /*
+     * The value. The value is a sequence of zero or more bytes and is followed
+     * by a NUL character. The value may contain NUL characters.
+     */
     const char *value;
-    size_t      length;
+
+    /*
+     * The length of the value.
+     */
+    size_t length;
 };
 
 /*
