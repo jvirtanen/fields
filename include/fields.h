@@ -39,6 +39,11 @@ extern "C" {
  *     https://github.com/jvirtanen/fields
  */
 
+/*
+ * Version
+ * -------
+ */
+
 #define FIELDS_VERSION "0.4.0"
 
 /*
