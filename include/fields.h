@@ -44,6 +44,9 @@ extern "C" {
  * -------
  */
 
+/*
+ * The current version of the library.
+ */
 #define FIELDS_VERSION "0.4.0"
 
 /*
