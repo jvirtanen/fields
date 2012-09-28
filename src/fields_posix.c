@@ -70,7 +70,7 @@ fields_fd_alloc(int fd, size_t buffer_size)
 
     self = malloc(sizeof(*self));
     if (self == NULL) {
-        free(self);
+        free(buffer);
         return NULL;
     }
 
