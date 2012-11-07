@@ -40,14 +40,16 @@ extern "C" {
 
 /*
  * Allocate a reader that reads from the specified file descriptor. The
- * operation fails if the settings are erroneous.
+ * operation fails if the input format or the settings are erroneous.
  *
  * - fd:       a file descriptor
+ * - format:   the input format
  * - settings: the settings for the reader
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct fields_reader *fields_read_fd(int, const struct fields_settings *);
+struct fields_reader *fields_read_fd(int, const struct fields_format *,
+    const struct fields_settings *);
 
 #ifdef __cplusplus
 }

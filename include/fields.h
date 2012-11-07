@@ -50,28 +50,41 @@ extern "C" {
 #define FIELDS_VERSION "0.5.0"
 
 /*
+ * Formats
+ * -------
+ */
+
+/*
+ * The input format.
+ */
+struct fields_format;
+
+/*
+ * Comma-separated values (CSV) use a comma (`,`) as the delimiter and a
+ * double quote (`"`) for quoting.
+ */
+extern const struct fields_format fields_csv;
+
+/*
+ * Tab-separated values (TSV) use a tab (`\t`) as the delimiter and quoting
+ * is disabled.
+ */
+extern const struct fields_format fields_tsv;
+
+/*
  * Settings
  * --------
  */
 
 /*
- * Settings specify the input format and the reader and record configuration.
+ * The settings for readers and records.
  */
 struct fields_settings;
 
 /*
- * Use comma-separated values (CSV) as the input format with the default
- * reader and record configuration. A comma (`,`) is used as the delimiter
- * and a double quote (`"`) for quoting.
+ * The default settings.
  */
-extern const struct fields_settings fields_csv;
-
-/*
- * Use tab-separated values (TSV) as the input format with the default reader
- * and record configuration. A tab (`\t`) is used as the delimiter and quoting
- * is disabled.
- */
-extern const struct fields_settings fields_tsv;
+extern const struct fields_settings fields_defaults;
 
 /*
  * Fields
@@ -156,27 +169,30 @@ struct fields_reader;
 
 /*
  * Allocate a reader that reads from the specified buffer. The operation fails
- * if the settings are erroneous.
+ * if the input format or the settings are erroneous.
  *
  * - buffer:      a buffer
  * - buffer_size: size of the buffer
+ * - format:      the input format
  * - settings:    the settings for the reader
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
 struct fields_reader *fields_read_buffer(const char *, size_t,
-    const struct fields_settings *);
+    const struct fields_format *, const struct fields_settings *);
 
 /*
  * Allocate a reader that reads from the specified file. The operation fails
- * if the settings are erroneous.
+ * if the input format or the settings are erroneous.
  *
  * - file:     a file
+ * - format:   the input format
  * - settings: the settings for the reader
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
-struct fields_reader *fields_read_file(FILE *, const struct fields_settings *);
+struct fields_reader *fields_read_file(FILE *, const struct fields_format *,
+    const struct fields_settings *);
 
 /*
  * Deallocate the reader.
@@ -227,23 +243,58 @@ enum fields_reader_error
 };
 
 /*
+ * Custom Formats
+ * --------------
+ */
+
+struct fields_format
+{
+    /*
+     * The delimiter character. Must not be `\n` or `\r`.
+     */
+    char delimiter;
+
+    /*
+     * The quote character. Must not be `\n`, `\r` or the delimiter character.
+     * Set to `\0` to disable quoting.
+     */
+    char quote;
+};
+
+/*
+ * Check whether the format is erroneous.
+ *
+ * - format: the format
+ *
+ * Returns an error code if the format is erroneous. Otherwise returns zero.
+ */
+int fields_format_error(const struct fields_format *);
+
+/*
+ * Get a string representation of an error code.
+ *
+ * - error: an error code
+ *
+ * Returns a string representation of the error code.
+ */
+const char *fields_format_strerror(int);
+
+/*
+ * The error codes for the format.
+ */
+enum fields_format_error
+{
+    FIELDS_FORMAT_ERROR_DELIMITER = 1,
+    FIELDS_FORMAT_ERROR_QUOTE     = 2
+};
+
+/*
  * Custom Settings
  * ---------------
  */
 
 struct fields_settings
 {
-    /*
-     * The delimiter character. Must not be `\n` or `\r`.
-     */
-    char    delimiter;
-
-    /*
-     * The quote character. Must not be `\n`, `\r` or the delimiter character.
-     * Set to `\0` to disable quoting.
-     */
-    char    quote;
-
     /*
      * Expand the record if needed. If true, whenever the limit for the record
      * buffer size or for the maximum number of fields in a record is reached,
@@ -301,11 +352,9 @@ const char *fields_settings_strerror(int);
  */
 enum fields_settings_error
 {
-    FIELDS_SETTINGS_ERROR_DELIMITER          = 1,
-    FIELDS_SETTINGS_ERROR_QUOTE              = 2,
-    FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE = 3,
-    FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 4,
-    FIELDS_SETTINGS_ERROR_RECORD_MAX_FIELDS  = 5
+    FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE = 1,
+    FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE = 2,
+    FIELDS_SETTINGS_ERROR_RECORD_MAX_FIELDS  = 3
 };
 
 /*
@@ -335,17 +384,19 @@ typedef void fields_source_free_fn(void *);
 
 /*
  * Allocate a reader for the specified source. The operation fails if the
- * settings are erroneous.
+ * format or the settings are erroneous.
  *
  * - source:   the source object
  * - read:     the read method
  * - free:     the free method
+ * - format:   the input format
  * - settings: the settings for the reader
  *
  * If successful, returns a reader object. Otherwise returns `NULL`.
  */
 struct fields_reader *fields_reader_alloc(void *, fields_source_read_fn *,
-    fields_source_free_fn *, const struct fields_settings *);
+    fields_source_free_fn *, const struct fields_format *,
+    const struct fields_settings *);
 
 #ifdef __cplusplus
 }

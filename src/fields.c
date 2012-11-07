@@ -66,7 +66,7 @@ static const char *fields_reader_end(const struct fields_reader *);
 static int fields_reader_fill(struct fields_reader *);
 static void fields_reader_skip(struct fields_reader *);
 
-static fields_parse_fn *fields_settings_parser(const struct fields_settings *);
+static fields_parse_fn *fields_format_parser(const struct fields_format *);
 
 static int fields_parse_unquoted(struct fields_reader *,
     struct fields_record *);
@@ -292,7 +292,7 @@ fields_record_normalize(struct fields_record *self)
 
 struct fields_reader *
 fields_read_buffer(const char *buffer, size_t buffer_size,
-    const struct fields_settings *settings)
+    const struct fields_format *format, const struct fields_settings *settings)
 {
     struct fields_reader *reader;
     struct fields_buffer *source;
@@ -302,7 +302,7 @@ fields_read_buffer(const char *buffer, size_t buffer_size,
         return NULL;
 
     reader = fields_reader_alloc(source, &fields_buffer_read,
-        &fields_buffer_free, settings);
+        &fields_buffer_free, format, settings);
     if (reader == NULL) {
         fields_buffer_free(source);
         return NULL;
@@ -312,7 +312,8 @@ fields_read_buffer(const char *buffer, size_t buffer_size,
 }
 
 struct fields_reader *
-fields_read_file(FILE *file, const struct fields_settings *settings)
+fields_read_file(FILE *file, const struct fields_format *format,
+    const struct fields_settings *settings)
 {
     struct fields_reader *reader;
     struct fields_file *source;
@@ -322,7 +323,7 @@ fields_read_file(FILE *file, const struct fields_settings *settings)
         return NULL;
 
     reader = fields_reader_alloc(source, &fields_file_read, &fields_file_free,
-        settings);
+        format, settings);
     if (reader == NULL) {
         fields_file_free(source);
         return NULL;
@@ -333,9 +334,13 @@ fields_read_file(FILE *file, const struct fields_settings *settings)
 
 struct fields_reader *
 fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
-    fields_source_free_fn *free_fn, const struct fields_settings *settings)
+    fields_source_free_fn *free_fn, const struct fields_format *format,
+    const struct fields_settings *settings)
 {
     struct fields_reader *self;
+
+    if (fields_format_error(format) != 0)
+        return NULL;
 
     if (fields_settings_error(settings) != 0)
         return NULL;
@@ -347,9 +352,9 @@ fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
     self->source = source;
     self->source_read = read_fn;
     self->source_free = free_fn;
-    self->delimiter = settings->delimiter;
-    self->quote = settings->quote;
-    self->parse = fields_settings_parser(settings);
+    self->delimiter = format->delimiter;
+    self->quote = format->quote;
+    self->parse = fields_format_parser(format);
     self->buffer = NULL;
     self->buffer_size = 0;
     self->cursor = NULL;
@@ -444,24 +449,77 @@ fields_reader_strerror(int error)
 }
 
 /*
+ * Formats
+ * =======
+ */
+
+const struct fields_format fields_csv =
+{
+    .delimiter  = ',',
+    .quote      = '"'
+};
+
+const struct fields_format fields_tsv =
+{
+    .delimiter  = '\t',
+    .quote      = '\0'
+};
+
+int
+fields_format_error(const struct fields_format *format)
+{
+    if (format->delimiter == '\n')
+        return FIELDS_FORMAT_ERROR_DELIMITER;
+
+    if (format->delimiter == '\r')
+        return FIELDS_FORMAT_ERROR_DELIMITER;
+
+    if (format->quote == '\n')
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    if (format->quote == '\r')
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    if (format->quote == format->delimiter)
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    return 0;
+}
+
+const char *
+fields_format_strerror(int error)
+{
+    switch (error) {
+    case FIELDS_FORMAT_ERROR_DELIMITER:
+        return "Bad field delimiter";
+    case FIELDS_FORMAT_ERROR_QUOTE:
+        return "Bad quote character";
+    case 0:
+        return "";
+    default:
+        break;
+    }
+
+    return "Unknown error";
+}
+
+static fields_parse_fn *
+fields_format_parser(const struct fields_format *format)
+{
+    if (format->quote != '\0')
+        return &fields_parse_quoted;
+    else
+        return &fields_parse_unquoted;
+}
+
+
+/*
  * Settings
  * ========
  */
 
-const struct fields_settings fields_csv =
+const struct fields_settings fields_defaults =
 {
-    .delimiter          = ',',
-    .quote              = '"',
-    .expand             = true,
-    .source_buffer_size = FIELDS_DEFAULT_SOURCE_BUFFER_SIZE,
-    .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
-    .record_max_fields  = FIELDS_DEFAULT_RECORD_MAX_FIELDS
-};
-
-const struct fields_settings fields_tsv =
-{
-    .delimiter          = '\t',
-    .quote              = '\0',
     .expand             = true,
     .source_buffer_size = FIELDS_DEFAULT_SOURCE_BUFFER_SIZE,
     .record_buffer_size = FIELDS_DEFAULT_RECORD_BUFFER_SIZE,
@@ -471,21 +529,6 @@ const struct fields_settings fields_tsv =
 int
 fields_settings_error(const struct fields_settings *settings)
 {
-    if (settings->delimiter == '\n')
-        return FIELDS_SETTINGS_ERROR_DELIMITER;
-
-    if (settings->delimiter == '\r')
-        return FIELDS_SETTINGS_ERROR_DELIMITER;
-
-    if (settings->quote == '\n')
-        return FIELDS_SETTINGS_ERROR_QUOTE;
-
-    if (settings->quote == '\r')
-        return FIELDS_SETTINGS_ERROR_QUOTE;
-
-    if (settings->quote == settings->delimiter)
-        return FIELDS_SETTINGS_ERROR_QUOTE;
-
     if (settings->source_buffer_size < FIELDS_MINIMUM_SOURCE_BUFFER_SIZE)
         return FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE;
 
@@ -502,10 +545,6 @@ const char *
 fields_settings_strerror(int error)
 {
     switch (error) {
-    case FIELDS_SETTINGS_ERROR_DELIMITER:
-        return "Bad field delimiter";
-    case FIELDS_SETTINGS_ERROR_QUOTE:
-        return "Bad quote character";
     case FIELDS_SETTINGS_ERROR_SOURCE_BUFFER_SIZE:
         return "Too low source buffer size";
     case FIELDS_SETTINGS_ERROR_RECORD_BUFFER_SIZE:
@@ -519,15 +558,6 @@ fields_settings_strerror(int error)
     }
 
     return "Unknown error";
-}
-
-static fields_parse_fn *
-fields_settings_parser(const struct fields_settings *settings)
-{
-    if (settings->quote != '\0')
-        return &fields_parse_quoted;
-    else
-        return &fields_parse_unquoted;
 }
 
 /*

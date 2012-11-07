@@ -20,11 +20,11 @@ main(void)
     struct fields_reader *reader;
     struct fields_record *record;
 
-    reader = fields_read_file(stdin, &fields_csv);
+    reader = fields_read_file(stdin, &fields_csv, &fields_defaults);
     if (reader == NULL)
         die("fields_read_file");
 
-    record = fields_record_alloc(&fields_csv);
+    record = fields_record_alloc(&fields_defaults);
     if (record == NULL)
         die("fields_record_alloc");
 

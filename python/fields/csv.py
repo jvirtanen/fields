@@ -33,9 +33,9 @@ def reader(source, **kwargs):
 class Reader(object):
 
     def __init__(self, source, **kwargs):
-        settings = _settings(kwargs)
+        fmt, settings = _parse(kwargs)
         try:
-            self.__reader = libfields.Reader(source, settings)
+            self.__reader = libfields.Reader(source, fmt, settings)
             self.__record = libfields.Record(settings)
         except ValueError as e:
             raise Error(str(e))
@@ -54,22 +54,19 @@ class Reader(object):
         return [self.__record.field(i) for i in xrange(self.__record.size())]
 
 
-def _settings(kwargs):
+def _parse(kwargs):
         def as_char(value):
             return value or '\0'
         def as_int(value):
             return int(bool(value))
-        delimiter = kwargs.get('delimiter', ',')
-        quote = kwargs.get('quotechar', '"')
-        expand = kwargs.get('_expand', True)
-        source_buffer_size = kwargs.get('_source_buffer_size', 4 * 1024)
-        record_buffer_size = kwargs.get('_record_buffer_size', 1024 * 1024)
-        record_max_fields = kwargs.get('_record_max_fields', 1023)
-        return libfields.Settings(
-            as_char(delimiter),
-            as_char(quote),
-            as_int(expand),
-            source_buffer_size,
-            record_buffer_size,
-            record_max_fields
+        fmt = libfields.Format(
+            delimiter = as_char(kwargs.get('delimiter', ',')),
+            quote = as_char(kwargs.get('quotechar', '"'))
         )
+        settings = libfields.Settings(
+            expand = as_int(kwargs.get('_expand', True)),
+            source_buffer_size = kwargs.get('_source_buffer_size', 4 * 1024),
+            record_buffer_size = kwargs.get('_record_buffer_size', 1024 * 1024),
+            record_max_fields = kwargs.get('_record_max_fields', 1023)
+        )
+        return (fmt, settings)

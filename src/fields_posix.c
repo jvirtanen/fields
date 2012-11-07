@@ -39,7 +39,8 @@ static int fields_fd_read(void *, const char **, size_t *);
 static void fields_fd_free(void *);
 
 struct fields_reader *
-fields_read_fd(int fd, const struct fields_settings *settings)
+fields_read_fd(int fd, const struct fields_format *format,
+    const struct fields_settings *settings)
 {
     struct fields_reader *reader;
     struct fields_fd *source;
@@ -49,7 +50,7 @@ fields_read_fd(int fd, const struct fields_settings *settings)
         return NULL;
 
     reader = fields_reader_alloc(source, &fields_fd_read, &fields_fd_free,
-        settings);
+        format, settings);
     if (reader == NULL) {
         fields_fd_free(source);
         return NULL;

@@ -45,9 +45,9 @@ class SettingsTest(TestCase):
     def test_equal_delimiter_and_quote(self):
         self.assertFail('Bad quote character', delimiter=',', quotechar=',')
 
-    def assertFail(self, message, **settings):
+    def assertFail(self, message, **kwargs):
         try:
-            fields.reader('', **settings)
+            fields.reader('', **kwargs)
             self.fail()
         except fields.Error as e:
             self.assertEqual(str(e), message)
