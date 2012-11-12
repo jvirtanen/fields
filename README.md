@@ -11,10 +11,9 @@ Fields reads records from a source, such as a file or a buffer. Each record
 contains zero or more fields. Records are separated by record separators and
 fields by field delimiters.
 
-Data read from the source must be in ASCII-compatible encoding, such as UTF-8.
-The record separator may be either a carriage return (CR, Mac OS), a line feed
-(LF, Unix) or a CRLF (Windows). The field delimiter can be set to any character
-except CR or LF.
+Data read from the source must be in ASCII. The record separator may be either
+a carriage return (CR, Mac OS), a line feed (LF, Unix) or a CRLF (Windows). The
+field delimiter can be set to any character except CR or LF.
 
 Field delimiters and record separators can be embedded into quoted fields. A
 quoted field starts and ends with the quote character, and quote characters
