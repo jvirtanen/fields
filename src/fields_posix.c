@@ -45,6 +45,9 @@ fields_read_fd(int fd, const struct fields_format *format,
     struct fields_reader *reader;
     struct fields_fd *source;
 
+    if (settings == NULL)
+        settings = &fields_defaults;
+
     source = fields_fd_alloc(fd, settings->source_buffer_size);
     if (source == NULL)
         return NULL;

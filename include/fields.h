@@ -119,7 +119,7 @@ struct fields_field
 struct fields_record;
 
 /*
- * Allocate a record.
+ * Allocate a record. If `settings` is `NULL`, the default settings are used.
  *
  * - settings: the settings for the record
  *
@@ -169,7 +169,8 @@ struct fields_reader;
 
 /*
  * Allocate a reader that reads from the specified buffer. The operation fails
- * if the input format or the settings are erroneous.
+ * if the input format or the settings are erroneous. If `settings` is `NULL`,
+ * the default settings are used.
  *
  * - buffer:      a buffer
  * - buffer_size: size of the buffer
@@ -183,7 +184,8 @@ struct fields_reader *fields_read_buffer(const char *, size_t,
 
 /*
  * Allocate a reader that reads from the specified file. The operation fails
- * if the input format or the settings are erroneous.
+ * if the input format or the settings are erroneous. If `settings` is `NULL`,
+ * the default settings are used.
  *
  * - file:     a file
  * - format:   the input format

@@ -40,7 +40,8 @@ extern "C" {
 
 /*
  * Allocate a reader that reads from the specified file descriptor. The
- * operation fails if the input format or the settings are erroneous.
+ * operation fails if the input format or the settings are erroneous. If
+ * `settings` is `NULL`, the default settings are used.
  *
  * - fd:       a file descriptor
  * - format:   the input format

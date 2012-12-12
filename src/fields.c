@@ -123,6 +123,9 @@ fields_record_alloc(const struct fields_settings *settings)
     char **fields;
     size_t max_fields;
 
+    if (settings == NULL)
+        settings = &fields_defaults;
+
     buffer_size = settings->record_buffer_size;
     max_fields = settings->record_max_fields;
 
@@ -297,6 +300,9 @@ fields_read_buffer(const char *buffer, size_t buffer_size,
     struct fields_reader *reader;
     struct fields_buffer *source;
 
+    if (settings == NULL)
+        settings = &fields_defaults;
+
     source = fields_buffer_alloc(buffer, buffer_size);
     if (source == NULL)
         return NULL;
@@ -317,6 +323,9 @@ fields_read_file(FILE *file, const struct fields_format *format,
 {
     struct fields_reader *reader;
     struct fields_file *source;
+
+    if (settings == NULL)
+        settings = &fields_defaults;
 
     source = fields_file_alloc(file, settings->source_buffer_size);
     if (source == NULL)
