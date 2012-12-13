@@ -27,6 +27,9 @@
 
 #define FIELDS_FAILURE (-1)
 
+#define FIELDS_CR 13
+#define FIELDS_LF 10
+
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
 struct fields_record
@@ -477,16 +480,16 @@ const struct fields_format fields_tsv =
 int
 fields_format_error(const struct fields_format *format)
 {
-    if (format->delimiter == '\n')
+    if (format->delimiter == FIELDS_CR)
         return FIELDS_FORMAT_ERROR_DELIMITER;
 
-    if (format->delimiter == '\r')
+    if (format->delimiter == FIELDS_LF)
         return FIELDS_FORMAT_ERROR_DELIMITER;
 
-    if (format->quote == '\n')
+    if (format->quote == FIELDS_CR)
         return FIELDS_FORMAT_ERROR_QUOTE;
 
-    if (format->quote == '\r')
+    if (format->quote == FIELDS_LF)
         return FIELDS_FORMAT_ERROR_QUOTE;
 
     if (format->quote == format->delimiter)
@@ -797,8 +800,8 @@ static int
 fields_parse_crlf(struct fields_reader *reader, struct fields_record *record,
     const char *rp, char *wp)
 {
-    if (*rp == '\r')
-        reader->skip = '\n';
+    if (*rp == FIELDS_CR)
+        reader->skip = FIELDS_LF;
 
     *wp++ = '\0';
     rp++;
@@ -953,7 +956,7 @@ fields_file_free(void *source)
 static inline bool
 fields_crlf(char ch)
 {
-    return (ch == 10) || (ch == 13);
+    return (ch == FIELDS_CR) || (ch == FIELDS_LF);
 }
 
 static inline bool
