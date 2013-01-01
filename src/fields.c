@@ -51,6 +51,21 @@ static int fields_record_push(struct fields_record *, char *);
 static char *fields_record_pop(struct fields_record *);
 static void fields_record_finish(struct fields_record *, char *);
 
+static void fields_position_init(struct fields_position *);
+static inline void fields_position_advance(struct fields_position *);
+static inline void fields_position_return(struct fields_position *);
+
+struct fields_context
+{
+    struct fields_position  position;
+    char                    last;
+};
+
+static void fields_context_init(struct fields_context *);
+static inline void fields_context_update(struct fields_context *, char);
+static void fields_context_position(const struct fields_context *,
+    struct fields_position *);
+
 struct fields_reader
 {
     void *                  source;
@@ -64,6 +79,7 @@ struct fields_reader
     const char *            cursor;
     char                    skip;
     int                     error;
+    struct fields_context   context;
 };
 
 static const char *fields_reader_end(const struct fields_reader *);
@@ -291,6 +307,71 @@ fields_record_finish(struct fields_record *self, char *cursor)
 }
 
 /*
+ * Positions
+ * =========
+ */
+
+static void
+fields_position_init(struct fields_position *self)
+{
+    self->row = 1;
+    self->column = 0;
+}
+
+static inline void
+fields_position_advance(struct fields_position *self)
+{
+    self->column++;
+}
+
+static inline void
+fields_position_return(struct fields_position *self)
+{
+    self->row++;
+    self->column = 0;
+}
+
+/*
+ * Contexts
+ * ========
+ */
+
+static void
+fields_context_init(struct fields_context *self)
+{
+    fields_position_init(&self->position);
+
+    self->last = '\0';
+}
+
+static inline void
+fields_context_update(struct fields_context *self, char ch)
+{
+    switch (ch) {
+    case FIELDS_CR:
+        fields_position_return(&self->position);
+        break;
+
+    case FIELDS_LF:
+        if (self->last != FIELDS_CR)
+            fields_position_return(&self->position);
+        break;
+
+    default:
+        fields_position_advance(&self->position);
+    }
+
+    self->last = ch;
+}
+
+static void
+fields_context_position(const struct fields_context *self,
+    struct fields_position *position)
+{
+    *position = self->position;
+}
+
+/*
  * Readers
  * =======
  */
@@ -372,6 +453,8 @@ fields_reader_alloc(void *source, fields_source_read_fn *read_fn,
     self->skip = '\0';
     self->error = 0;
 
+    fields_context_init(&self->context);
+
     return self;
 }
 
@@ -430,6 +513,13 @@ fields_reader_read(struct fields_reader *self, struct fields_record *record)
     fields_record_init(record);
 
     return self->parse(self, record);
+}
+
+void
+fields_reader_position(const struct fields_reader *self,
+    struct fields_position *position)
+{
+    fields_context_position(&self->context, position);
 }
 
 int
@@ -599,6 +689,8 @@ fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record
 
     while (true) {
         while ((rp != rq) && (wp != wq)) {
+            fields_context_update(&reader->context, *rp);
+
             if (*rp == delimiter) {
                 *wp++ = '\0';
                 rp++;
@@ -669,6 +761,8 @@ fields_parse_quoted(struct fields_reader *reader, struct fields_record *record)
 
     while (true) {
         while ((rp != rq) && (wp != wq)) {
+            fields_context_update(&reader->context, *rp);
+
             switch (state) {
             case FIELDS_STATE_MAYBE_INSIDE_FIELD:
                 if (*rp == quote) {

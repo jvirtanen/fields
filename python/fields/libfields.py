@@ -16,6 +16,15 @@ class Field(ctypes.Structure):
 Field_p = ctypes.POINTER(Field)
 
 
+class Position(ctypes.Structure):
+    _fields_ = [
+        ('row',     ctypes.c_long),
+        ('column',  ctypes.c_long)
+    ]
+
+Position_p = ctypes.POINTER(Position)
+
+
 class Reader(object):
 
     def __init__(self, source, fmt, settings):
@@ -43,8 +52,14 @@ class Reader(object):
         return so.fields_reader_read(self.c, record.c)
 
     def error(self):
+        position = Position()
+        so.fields_reader_position(self.c, position)
         result = so.fields_reader_error(self.c)
-        return so.fields_reader_strerror(result) if result != 0 else None
+        if result != 0:
+            message = so.fields_reader_strerror(result)
+            return '%d:%d: %s' % (position.row, position.column, message)
+        else:
+            return None
 
 
 Reader_p = ctypes.c_void_p
@@ -111,6 +126,9 @@ so.fields_reader_free.restype = None
 
 so.fields_reader_read.argtypes = [ Reader_p, Record_p ]
 so.fields_reader_read.restype = ctypes.c_int
+
+so.fields_reader_position.argtypes = [ Reader_p, Position_p ]
+so.fields_reader_position.restype = None
 
 so.fields_reader_error.argtypes = [ Reader_p ]
 so.fields_reader_error.restype = ctypes.c_int

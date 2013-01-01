@@ -84,7 +84,7 @@ class CSVTest(TestCase):
         self.assertParseEqual('a,b\n\nc', [['a', 'b'], [], ['c']])
 
     def test_quote(self):
-        self.assertParseEqual('a"b,c', 'Unexpected character')
+        self.assertParseEqual('a"b,c', '1:2: Unexpected character')
 
     def test_quoted(self):
         self.assertParseEqual('"a","b"\n"c"\n', [['a', 'b'], ['c']])
@@ -110,10 +110,10 @@ class CSVTest(TestCase):
         self.assertParseEqual('a,b\n"c', [['a', 'b'], ['c']])
 
     def test_quoted_with_preceding_garbage(self):
-        self.assertParseEqual('a"b",c', 'Unexpected character')
+        self.assertParseEqual('a"b",c', '1:2: Unexpected character')
 
     def test_quoted_with_subsequent_garbage(self):
-        self.assertParseEqual('"a"b,c', 'Unexpected character')
+        self.assertParseEqual('"a"b,c', '1:4: Unexpected character')
 
     def test_quoted_among_non_quoted(self):
         self.assertParseEqual('a,"b",c', [['a', 'b', 'c']])
@@ -194,10 +194,10 @@ class LimitsWithoutExpansionTest(TestCase):
         self.assertParseEqual(','.join('a' * 16), [['a'] * 16])
 
     def test_too_big_record(self):
-        self.assertParseEqual('a' * 1024, 'Too big record')
+        self.assertParseEqual('a' * 1024, '1:1024: Too big record')
 
     def test_too_many_fields(self):
-        self.assertParseEqual(','.join('a' * 17), 'Too many fields')
+        self.assertParseEqual(','.join('a' * 17), '1:32: Too many fields')
 
     def setUp(self):
         self.settings = {

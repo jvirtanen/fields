@@ -158,6 +158,27 @@ int fields_record_field(const struct fields_record *, unsigned int,
 size_t fields_record_size(const struct fields_record *);
 
 /*
+ * Positions
+ * ---------
+ */
+
+/*
+ * A position refers to a character in a text.
+ */
+struct fields_position
+{
+    /*
+     * The character's row.
+     */
+    long row;
+
+    /*
+     * The character's column.
+     */
+    long column;
+};
+
+/*
  * Readers
  * -------
  */
@@ -214,6 +235,16 @@ void fields_reader_free(struct fields_reader *);
  * If successful, returns zero. Otherwise returns non-zero.
  */
 int fields_reader_read(struct fields_reader *, struct fields_record *);
+
+/*
+ * Get the current position of the reader. The operation updates the position
+ * object.
+ *
+ * - reader:   the reader object
+ * - position: a position object
+ */
+void fields_reader_position(const struct fields_reader *,
+    struct fields_position *);
 
 /*
  * Check whether the reader is in error state.
