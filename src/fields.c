@@ -48,7 +48,6 @@ static char *fields_record_expand(struct fields_record *, char *);
 static int fields_record_push(struct fields_record *, char *);
 static char *fields_record_pop(struct fields_record *);
 static void fields_record_finish(struct fields_record *, char *);
-static void fields_record_normalize(struct fields_record *);
 
 struct fields_reader
 {
@@ -275,12 +274,10 @@ fields_record_finish(struct fields_record *self, char *cursor)
 {
     self->fields[self->num_fields] = cursor;
 
-    fields_record_normalize(self);
-}
-
-static void
-fields_record_normalize(struct fields_record *self)
-{
+    /*
+     * Prefer a record containing no fields to a record containing one field
+     * of zero length.
+     */
     if (fields_record_size(self) == 1) {
         struct fields_field field;
 
