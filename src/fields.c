@@ -27,8 +27,10 @@
 
 #define FIELDS_FAILURE (-1)
 
+#define FIELDS_HT  9
 #define FIELDS_CR 13
 #define FIELDS_LF 10
+#define FIELDS_SP 32
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
@@ -959,5 +961,5 @@ fields_crlf(char ch)
 static inline bool
 fields_whitespace(char ch)
 {
-    return (ch == 9) || (ch == 32);
+    return (ch == FIELDS_HT) || (ch == FIELDS_SP);
 }
