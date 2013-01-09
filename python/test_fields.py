@@ -164,6 +164,27 @@ class TSVTest(TestCase):
         }
 
 
+class UTF8Test(TestCase):
+
+    def test_one_byte(self):
+        self.assertParseEqual(u'a,b', [[u'a', u'b']])
+
+    def test_two_byte(self):
+        self.assertParseEqual(u'\u0627,b', [[u'\u0627', u'b']])
+
+    def test_three_byte(self):
+        self.assertParseEqual(u'\u0F69,b', [[u'\u0F69', u'b']])
+
+    def test_four_byte(self):
+        self.assertParseEqual(u'\U000103A0,b', [[u'\U000103A0', u'b']])
+
+    def setUp(self):
+        self.settings = {
+            'delimiter': ',',
+            'quotechar': '"'
+        }
+
+
 class LimitsWithoutExpansionTest(TestCase):
 
     def test_full_buffer(self):
