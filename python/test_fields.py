@@ -8,8 +8,9 @@ import unittest
 class TestCase(unittest.TestCase):
 
     def assertParseEqual(self, text, output):
-        self.assertEqual(self.__parse_buffer(text), output)
-        self.assertEqual(self.__parse_file(text), output)
+        encoded = text.encode('utf-8')
+        self.assertEqual(self.__parse_buffer(encoded), output)
+        self.assertEqual(self.__parse_file(encoded), output)
 
     def __parse_buffer(self, text):
         return self.__parse(text)
@@ -23,9 +24,12 @@ class TestCase(unittest.TestCase):
     def __parse(self, source):
         reader = fields.reader(source, **self.settings)
         try:
-            return [record for record in reader]
+            return [self.__decode(record) for record in reader]
         except fields.Error as e:
             return str(e)
+
+    def __decode(self, record):
+        return [field.decode('utf-8') for field in record]
 
 
 class SettingsTest(TestCase):
