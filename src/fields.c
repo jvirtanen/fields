@@ -58,6 +58,7 @@ static inline void fields_position_return(struct fields_position *);
 struct fields_context
 {
     struct fields_position  position;
+    size_t                  length;
     char                    last;
 };
 
@@ -126,6 +127,7 @@ enum fields_state {
     FIELDS_STATE_BEYOND_QUOTED_FIELD
 };
 
+static inline size_t fields_charlen(char);
 static inline bool fields_crlf(char);
 static inline bool fields_whitespace(char);
 
@@ -341,13 +343,21 @@ fields_context_init(struct fields_context *self)
 {
     fields_position_init(&self->position);
 
+    self->length = 1;
     self->last = '\0';
 }
 
 static inline void
-fields_context_update(struct fields_context *self, char ch)
+fields_context_update(struct fields_context *self, char byte)
 {
-    switch (ch) {
+    self->length--;
+
+    if (self->length != 0)
+        return;
+
+    self->length = fields_charlen(byte);
+
+    switch (byte) {
     case FIELDS_CR:
         fields_position_return(&self->position);
         break;
@@ -361,7 +371,7 @@ fields_context_update(struct fields_context *self, char ch)
         fields_position_advance(&self->position);
     }
 
-    self->last = ch;
+    self->last = byte;
 }
 
 static void
@@ -1045,6 +1055,30 @@ fields_file_free(void *source)
  * Utilities
  * =========
  */
+
+static inline size_t
+fields_charlen(char byte)
+{
+    /*
+     * This function calculates the length of a character in bytes in UTF-8
+     * assuming this byte is the initial byte. See RFC 3629 for details.
+     */
+
+    if ((byte & 0x80) == 0x00)
+        return 1;
+
+    if ((byte & 0xE0) == 0xC0)
+        return 2;
+
+    if ((byte & 0xF0) == 0xE0)
+        return 3;
+
+    if ((byte & 0xF8) == 0xF0)
+        return 4;
+
+    /* This byte is not the initial byte or the encoding is not UTF-8. */
+    return 0;
+}
 
 static inline bool
 fields_crlf(char ch)

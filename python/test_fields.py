@@ -178,6 +178,18 @@ class UTF8Test(TestCase):
     def test_four_byte(self):
         self.assertParseEqual(u'\U000103A0,b', [[u'\U000103A0', u'b']])
 
+    def test_one_byte_traversal(self):
+        self.assertParseEqual(u'a"', '1:2: Unexpected character')
+
+    def test_two_byte_traversal(self):
+        self.assertParseEqual(u'\u0627"', '1:2: Unexpected character')
+
+    def test_three_byte_traversal(self):
+        self.assertParseEqual(u'\u0F69"', '1:2: Unexpected character')
+
+    def test_four_byte_traversal(self):
+        self.assertParseEqual(u'\U000103A0"', '1:2: Unexpected character')
+
     def setUp(self):
         self.settings = {
             'delimiter': ',',
