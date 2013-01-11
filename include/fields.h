@@ -170,12 +170,12 @@ struct fields_position
     /*
      * The character's row.
      */
-    long row;
+    unsigned long row;
 
     /*
      * The character's column.
      */
-    long column;
+    unsigned long column;
 };
 
 /*
