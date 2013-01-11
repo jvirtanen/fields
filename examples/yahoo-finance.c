@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,7 +13,7 @@
  *     http://finance.yahoo.com/q/hp?s=SPY
  */
 
-static void die(const char *);
+static void die(const char *, ...);
 
 int
 main(void)
@@ -56,8 +57,17 @@ main(void)
 }
 
 static void
-die(const char *message)
+die(const char *fmt, ...)
 {
-    fprintf(stderr, "fatal: %s\n", message);
+    va_list ap;
+
+    fprintf(stderr, "fatal: ");
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+
+    fprintf(stderr, "\n");
+
     exit(EXIT_FAILURE);
 }
