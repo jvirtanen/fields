@@ -38,7 +38,7 @@ main(void)
 
         /* Date, Open, High, Low, Close, Volume and Adj Close. */
         if (fields_record_size(record) != 7)
-            die("fields_record_size");
+            die("Expected seven fields per record");
 
         /* Date and Adj Close. */
         fields_record_field(record, 0, &date);
@@ -47,8 +47,17 @@ main(void)
         printf("%s\t%s\n", date.value, price.value);
     }
 
-    if (fields_reader_error(reader) != 0)
-        die("fields_reader_error");
+    if (fields_reader_error(reader) != 0) {
+        struct fields_position position;
+        const char *message;
+        int error;
+
+        error = fields_reader_error(reader);
+        message = fields_reader_strerror(error);
+        fields_reader_position(reader, &position);
+
+        die("%lu:%lu: %s", position.row, position.column, message);
+    }
 
     fields_record_free(record);
     fields_reader_free(reader);
