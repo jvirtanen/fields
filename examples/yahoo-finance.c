@@ -58,6 +58,6 @@ main(void)
 static void
 die(const char *message)
 {
-    fprintf(stderr, "%s\n", message);
+    fprintf(stderr, "fatal: %s\n", message);
     exit(EXIT_FAILURE);
 }
