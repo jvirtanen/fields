@@ -30,12 +30,12 @@ class Reader(object):
     def __init__(self, source, fmt, settings):
         try:
             self.source = source
-            self.c = so.fields_read_fd(self.source.fileno(), fmt, settings)
+            self.ptr = so.fields_read_fd(self.source.fileno(), fmt, settings)
         except AttributeError:
             self.source = str(source)
-            self.c = so.fields_read_buffer(self.source, len(self.source),
+            self.ptr = so.fields_read_buffer(self.source, len(self.source),
                 fmt, settings)
-        if not self.c:
+        if not self.ptr:
             result = so.fields_format_error(fmt)
             if result != 0:
                 raise ValueError(so.fields_format_strerror(result))
@@ -45,16 +45,16 @@ class Reader(object):
             raise MemoryError
 
     def __del__(self):
-        if self.c:
-            so.fields_reader_free(self.c)
+        if self.ptr:
+            so.fields_reader_free(self.ptr)
 
     def read(self, record):
-        return so.fields_reader_read(self.c, record.c)
+        return so.fields_reader_read(self.ptr, record.ptr)
 
     def error(self):
         position = Position()
-        so.fields_reader_position(self.c, position)
-        result = so.fields_reader_error(self.c)
+        so.fields_reader_position(self.ptr, position)
+        result = so.fields_reader_error(self.ptr)
         if result != 0:
             message = so.fields_reader_strerror(result)
             return '%d:%d: %s' % (position.row, position.column, message)
@@ -68,23 +68,23 @@ Reader_p = ctypes.c_void_p
 class Record(object):
 
     def __init__(self, settings):
-        self.c = so.fields_record_alloc(settings)
-        if not self.c:
+        self.ptr = so.fields_record_alloc(settings)
+        if not self.ptr:
             raise MemoryError
 
     def __del__(self):
-        if self.c:
-            so.fields_record_free(self.c)
+        if self.ptr:
+            so.fields_record_free(self.ptr)
 
     def field(self, index):
         field = Field()
-        result = so.fields_record_field(self.c, index, ctypes.byref(field))
+        result = so.fields_record_field(self.ptr, index, ctypes.byref(field))
         if result != 0:
             raise IndexError
         return ctypes.string_at(field.value, field.length)
 
     def size(self):
-        return so.fields_record_size(self.c)
+        return so.fields_record_size(self.ptr)
 
 
 Record_p = ctypes.c_void_p
