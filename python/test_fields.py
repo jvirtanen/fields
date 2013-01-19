@@ -9,25 +9,26 @@ class TestCase(unittest.TestCase):
 
     def assertParseEqual(self, text, output):
         encoded = _encode(text)
-        self.assertEqual(self.__parse_buffer(encoded), output)
-        self.assertEqual(self.__parse_file(encoded), output)
+        settings = self.settings
+        self.assertEqual(_parse_buffer(encoded, settings), output)
+        self.assertEqual(_parse_file(encoded, settings), output)
 
-    def __parse_buffer(self, text):
-        return self.__parse(text)
 
-    def __parse_file(self, text):
-        with tempfile.TemporaryFile() as outfile:
-            outfile.write(text)
-            outfile.seek(0)
-            return self.__parse(outfile)
+def _parse_buffer(text, settings):
+    return _parse(text, settings)
 
-    def __parse(self, source):
-        reader = fields.reader(source, **self.settings)
-        try:
-            return [_decode(record) for record in reader]
-        except fields.Error as e:
-            return str(e)
+def _parse_file(text, settings):
+    with tempfile.TemporaryFile() as outfile:
+        outfile.write(text)
+        outfile.seek(0)
+        return _parse(outfile, settings)
 
+def _parse(source, settings):
+    reader = fields.reader(source, **settings)
+    try:
+        return [_decode(record) for record in reader]
+    except fields.Error as e:
+        return str(e)
 
 def _decode(record):
     return [field.decode('utf-8') for field in record]
