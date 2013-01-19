@@ -14,29 +14,6 @@ class TestCase(unittest.TestCase):
         self.assertEqual(_parse_file(encoded, settings), output)
 
 
-def _parse_buffer(text, settings):
-    return _parse(text, settings)
-
-def _parse_file(text, settings):
-    with tempfile.TemporaryFile() as outfile:
-        outfile.write(text)
-        outfile.seek(0)
-        return _parse(outfile, settings)
-
-def _parse(source, settings):
-    reader = fields.reader(source, **settings)
-    try:
-        return [_decode(record) for record in reader]
-    except fields.Error as e:
-        return str(e)
-
-def _decode(record):
-    return [field.decode('utf-8') for field in record]
-
-def _encode(text):
-    return text.encode('utf-8')
-
-
 class SettingsTest(TestCase):
 
     def test_cr_as_delimiter(self):
@@ -249,6 +226,29 @@ class LimitsWithExpansionTest(TestCase):
             '_record_max_fields' : 16,
             '_record_buffer_size': 1024
         }
+
+
+def _parse_buffer(text, settings):
+    return _parse(text, settings)
+
+def _parse_file(text, settings):
+    with tempfile.TemporaryFile() as outfile:
+        outfile.write(text)
+        outfile.seek(0)
+        return _parse(outfile, settings)
+
+def _parse(source, settings):
+    reader = fields.reader(source, **settings)
+    try:
+        return [_decode(record) for record in reader]
+    except fields.Error as e:
+        return str(e)
+
+def _decode(record):
+    return [field.decode('utf-8') for field in record]
+
+def _encode(text):
+    return text.encode('utf-8')
 
 
 if __name__ == "__main__":
