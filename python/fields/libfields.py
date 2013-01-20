@@ -2,9 +2,9 @@ import ctypes
 
 
 try:
-    so = ctypes.CDLL('libfields.so')
+    _so = ctypes.CDLL('libfields.so')
 except OSError:
-    so = ctypes.CDLL('libfields.dylib')
+    _so = ctypes.CDLL('libfields.dylib')
 
 
 class Field(ctypes.Structure):
@@ -30,33 +30,33 @@ class Reader(object):
     def __init__(self, source, fmt, settings):
         try:
             self.source = source
-            self.ptr = so.fields_read_fd(self.source.fileno(), fmt, settings)
+            self.ptr = _so.fields_read_fd(self.source.fileno(), fmt, settings)
         except AttributeError:
             self.source = str(source)
-            self.ptr = so.fields_read_buffer(self.source, len(self.source),
+            self.ptr = _so.fields_read_buffer(self.source, len(self.source),
                 fmt, settings)
         if not self.ptr:
-            result = so.fields_format_error(fmt)
+            result = _so.fields_format_error(fmt)
             if result != 0:
-                raise ValueError(so.fields_format_strerror(result))
-            result = so.fields_settings_error(settings)
+                raise ValueError(_so.fields_format_strerror(result))
+            result = _so.fields_settings_error(settings)
             if result != 0:
-                raise ValueError(so.fields_settings_strerror(result))
+                raise ValueError(_so.fields_settings_strerror(result))
             raise MemoryError
 
     def __del__(self):
         if self.ptr:
-            so.fields_reader_free(self.ptr)
+            _so.fields_reader_free(self.ptr)
 
     def read(self, record):
-        return so.fields_reader_read(self.ptr, record.ptr)
+        return _so.fields_reader_read(self.ptr, record.ptr)
 
     def error(self):
         position = Position()
-        so.fields_reader_position(self.ptr, position)
-        result = so.fields_reader_error(self.ptr)
+        _so.fields_reader_position(self.ptr, position)
+        result = _so.fields_reader_error(self.ptr)
         if result != 0:
-            message = so.fields_reader_strerror(result)
+            message = _so.fields_reader_strerror(result)
             return '%d:%d: %s' % (position.row, position.column, message)
         else:
             return None
@@ -68,23 +68,23 @@ Reader_p = ctypes.c_void_p
 class Record(object):
 
     def __init__(self, settings):
-        self.ptr = so.fields_record_alloc(settings)
+        self.ptr = _so.fields_record_alloc(settings)
         if not self.ptr:
             raise MemoryError
 
     def __del__(self):
         if self.ptr:
-            so.fields_record_free(self.ptr)
+            _so.fields_record_free(self.ptr)
 
     def field(self, index):
         field = Field()
-        result = so.fields_record_field(self.ptr, index, ctypes.byref(field))
+        result = _so.fields_record_field(self.ptr, index, ctypes.byref(field))
         if result != 0:
             raise IndexError
         return ctypes.string_at(field.value, field.length)
 
     def size(self):
-        return so.fields_record_size(self.ptr)
+        return _so.fields_record_size(self.ptr)
 
 
 Record_p = ctypes.c_void_p
@@ -110,52 +110,52 @@ class Settings(ctypes.Structure):
 Settings_p = ctypes.POINTER(Settings)
 
 
-so.fields_read_buffer.argtypes = [
+_so.fields_read_buffer.argtypes = [
     ctypes.POINTER(ctypes.c_char),
     ctypes.c_size_t,
     Format_p,
     Settings_p
 ]
-so.fields_read_buffer.restype = Reader_p
+_so.fields_read_buffer.restype = Reader_p
 
-so.fields_read_fd.argtypes = [ ctypes.c_int, Format_p, Settings_p ]
-so.fields_read_fd.restype = Reader_p
+_so.fields_read_fd.argtypes = [ ctypes.c_int, Format_p, Settings_p ]
+_so.fields_read_fd.restype = Reader_p
 
-so.fields_reader_free.argtypes = [ Reader_p ]
-so.fields_reader_free.restype = None
+_so.fields_reader_free.argtypes = [ Reader_p ]
+_so.fields_reader_free.restype = None
 
-so.fields_reader_read.argtypes = [ Reader_p, Record_p ]
-so.fields_reader_read.restype = ctypes.c_int
+_so.fields_reader_read.argtypes = [ Reader_p, Record_p ]
+_so.fields_reader_read.restype = ctypes.c_int
 
-so.fields_reader_position.argtypes = [ Reader_p, Position_p ]
-so.fields_reader_position.restype = None
+_so.fields_reader_position.argtypes = [ Reader_p, Position_p ]
+_so.fields_reader_position.restype = None
 
-so.fields_reader_error.argtypes = [ Reader_p ]
-so.fields_reader_error.restype = ctypes.c_int
+_so.fields_reader_error.argtypes = [ Reader_p ]
+_so.fields_reader_error.restype = ctypes.c_int
 
-so.fields_reader_strerror.argtypes = [ ctypes.c_int ]
-so.fields_reader_strerror.restype = ctypes.c_char_p
+_so.fields_reader_strerror.argtypes = [ ctypes.c_int ]
+_so.fields_reader_strerror.restype = ctypes.c_char_p
 
-so.fields_record_alloc.argtypes = [ Settings_p ]
-so.fields_record_alloc.restype = Record_p
+_so.fields_record_alloc.argtypes = [ Settings_p ]
+_so.fields_record_alloc.restype = Record_p
 
-so.fields_record_free.argtypes = [ Record_p ]
-so.fields_record_free.restype = None
+_so.fields_record_free.argtypes = [ Record_p ]
+_so.fields_record_free.restype = None
 
-so.fields_record_field.argtypes = [ Record_p, ctypes.c_uint, Field_p ]
-so.fields_record_field.restype = ctypes.c_int
+_so.fields_record_field.argtypes = [ Record_p, ctypes.c_uint, Field_p ]
+_so.fields_record_field.restype = ctypes.c_int
 
-so.fields_record_size.argtypes = [ Record_p ]
-so.fields_record_size.restype = ctypes.c_size_t
+_so.fields_record_size.argtypes = [ Record_p ]
+_so.fields_record_size.restype = ctypes.c_size_t
 
-so.fields_format_error.argtypes = [ Format_p ]
-so.fields_format_error.restype = ctypes.c_int
+_so.fields_format_error.argtypes = [ Format_p ]
+_so.fields_format_error.restype = ctypes.c_int
 
-so.fields_format_strerror.argtypes = [ ctypes.c_int ]
-so.fields_format_strerror.restype = ctypes.c_char_p
+_so.fields_format_strerror.argtypes = [ ctypes.c_int ]
+_so.fields_format_strerror.restype = ctypes.c_char_p
 
-so.fields_settings_error.argtypes = [ Settings_p ]
-so.fields_settings_error.restype = ctypes.c_int
+_so.fields_settings_error.argtypes = [ Settings_p ]
+_so.fields_settings_error.restype = ctypes.c_int
 
-so.fields_settings_strerror.argtypes = [ ctypes.c_int ]
-so.fields_settings_strerror.restype = ctypes.c_char_p
+_so.fields_settings_strerror.argtypes = [ ctypes.c_int ]
+_so.fields_settings_strerror.restype = ctypes.c_char_p
