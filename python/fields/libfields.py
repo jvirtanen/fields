@@ -36,9 +36,9 @@ class Reader(object):
             self.ptr = _so.fields_read_buffer(self.source, len(self.source),
                 fmt, settings)
         if not self.ptr:
-            result = _so.fields_format_error(fmt)
-            if result != 0:
-                raise ValueError(_so.fields_format_strerror(result))
+            message = format_strerror(fmt)
+            if message:
+                raise ValueError(message)
             result = _so.fields_settings_error(settings)
             if result != 0:
                 raise ValueError(_so.fields_settings_strerror(result))
@@ -108,6 +108,11 @@ class Settings(ctypes.Structure):
     ]
 
 Settings_p = ctypes.POINTER(Settings)
+
+
+def format_strerror(fmt):
+    result = _so.fields_format_error(fmt)
+    return _so.fields_format_strerror(result) if result else None
 
 
 _so.fields_read_buffer.argtypes = [
