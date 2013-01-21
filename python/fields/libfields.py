@@ -39,9 +39,9 @@ class Reader(object):
             message = format_strerror(fmt)
             if message:
                 raise ValueError(message)
-            result = _so.fields_settings_error(settings)
-            if result != 0:
-                raise ValueError(_so.fields_settings_strerror(result))
+            message = settings_strerror(settings)
+            if message:
+                raise ValueError(message)
             raise MemoryError
 
     def __del__(self):
@@ -113,6 +113,10 @@ Settings_p = ctypes.POINTER(Settings)
 def format_strerror(fmt):
     result = _so.fields_format_error(fmt)
     return _so.fields_format_strerror(result) if result else None
+
+def settings_strerror(settings):
+    result = _so.settings_strerror(settings)
+    return _so.fields_settings_strerror(result) if result else None
 
 
 _so.fields_read_buffer.argtypes = [
