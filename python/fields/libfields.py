@@ -52,17 +52,17 @@ class Reader(object):
         return _so.fields_reader_read(self.ptr, record.ptr)
 
     def error(self):
-        result = _so.fields_reader_error(self.ptr)
-        if result != 0:
-            message = _so.fields_reader_strerror(result)
-            return '%s: %s' % (self.position(), message)
-        else:
-            return None
+        message = self.strerror()
+        return '%s: %s' % (self.position(), message) if message else None
 
     def position(self):
         position = Position()
         _so.fields_reader_position(self.ptr, position)
         return '%d:%d' % (position.row, position.column)
+
+    def strerror(self):
+        result = _so.fields_reader_error(self.ptr)
+        return _so.fields_reader_strerror(result) if result else None
 
 
 Reader_p = ctypes.c_void_p
