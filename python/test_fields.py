@@ -10,8 +10,8 @@ class TestCase(unittest.TestCase):
     def assertParseEqual(self, text, output):
         encoded = encode(text)
         settings = self.settings
-        self.assertEqual(_parse_buffer(encoded, settings), output)
-        self.assertEqual(_parse_file(encoded, settings), output)
+        self.assertEqual(parse_buffer(encoded, settings), output)
+        self.assertEqual(parse_file(encoded, settings), output)
 
 
 class SettingsTest(TestCase):
@@ -228,16 +228,16 @@ class LimitsWithExpansionTest(TestCase):
         }
 
 
-def _parse_buffer(text, settings):
-    return _parse(text, settings)
+def parse_buffer(text, settings):
+    return parse(text, settings)
 
-def _parse_file(text, settings):
+def parse_file(text, settings):
     with tempfile.TemporaryFile() as outfile:
         outfile.write(text)
         outfile.seek(0)
-        return _parse(outfile, settings)
+        return parse(outfile, settings)
 
-def _parse(source, settings):
+def parse(source, settings):
     reader = fields.reader(source, **settings)
     try:
         return [decode(record) for record in reader]
