@@ -8,10 +8,8 @@ import unittest
 class TestCase(unittest.TestCase):
 
     def assertParseEqual(self, text, output):
-        encoded = encode(text)
-        settings = self.settings
-        self.assertEqual(parse_buffer(encoded, settings), output)
-        self.assertEqual(parse_file(encoded, settings), output)
+        self.assertEqual(parse_buffer(encode(text), self.settings), output)
+        self.assertEqual(parse_file(encode(text), self.settings), output)
 
 
 class SettingsTest(TestCase):
