@@ -25,4 +25,4 @@ The API is similar to Python's `csv` module:
 License
 -------
 
-Fields for Python is released under the MIT License. See `LICENSE` for details.
+Fields for Python is released under the same license as Fields.
