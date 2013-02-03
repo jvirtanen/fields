@@ -22,12 +22,6 @@ The API is similar to Python's `csv` module:
     ['c']
 
 
-Installation
-------------
-
-    pip install .
-
-
 License
 -------
 
