@@ -33,7 +33,8 @@ def reader(source, **kwargs):
 class Reader(object):
 
     def __init__(self, source, **kwargs):
-        fmt, settings = _parse(kwargs)
+        fmt = _fmt(kwargs)
+        settings = _settings(kwargs)
         try:
             self.__reader = libfields.Reader(source, fmt, settings)
             self.__record = libfields.Record(settings)
@@ -54,19 +55,16 @@ class Reader(object):
         return [self.__record.field(i) for i in xrange(self.__record.size())]
 
 
-def _parse(kwargs):
-        def as_char(value):
-            return value or '\0'
-        def as_int(value):
-            return int(bool(value))
-        fmt = libfields.Format(
-            delimiter = as_char(kwargs.get('delimiter', ',')),
-            quote = as_char(kwargs.get('quotechar', '"'))
-        )
-        settings = libfields.Settings(
-            expand = as_int(kwargs.get('_expand', True)),
-            source_buffer_size = kwargs.get('_source_buffer_size', 4 * 1024),
-            record_buffer_size = kwargs.get('_record_buffer_size', 1024 * 1024),
-            record_max_fields = kwargs.get('_record_max_fields', 1023)
-        )
-        return (fmt, settings)
+def _fmt(options):
+    return libfields.Format(
+        delimiter = options.get('delimiter', ',') or '\0',
+        quote     = options.get('quotechar', '"') or '\0',
+    )
+
+def _settings(options):
+    return libfields.Settings(
+        expand             = int(options.get('_expand', True)),
+        source_buffer_size = options.get('_source_buffer_size', 4 * 1024),
+        record_buffer_size = options.get('_record_buffer_size', 1024 * 1024),
+        record_max_fields  = options.get('_record_max_fields', 1023),
+    )
