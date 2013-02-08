@@ -103,8 +103,8 @@ class CSVTest(TestCase):
 
     def setUp(self):
         self.options = {
-            'delimiter' : ',',
-            'quotechar' : '"'
+            'delimiter': ',',
+            'quotechar': '"'
         }
 
 
@@ -139,8 +139,8 @@ class TSVTest(TestCase):
 
     def setUp(self):
         self.options = {
-            'delimiter' : '\t',
-            'quotechar' : None
+            'delimiter': '\t',
+            'quotechar': None
         }
 
 
@@ -193,9 +193,9 @@ class LimitsWithoutExpansionTest(TestCase):
 
     def setUp(self):
         self.options = {
-            '_expand'            : False,
+            '_expand': False,
             '_source_buffer_size': 1024,
-            '_record_max_fields' : 16,
+            '_record_max_fields': 16,
             '_record_buffer_size': 1024
         }
 
@@ -219,9 +219,9 @@ class LimitsWithExpansionTest(TestCase):
 
     def setUp(self):
         self.options = {
-            '_expand'            : True,
+            '_expand': True,
             '_source_buffer_size': 1024,
-            '_record_max_fields' : 16,
+            '_record_max_fields': 16,
             '_record_buffer_size': 1024
         }
 
