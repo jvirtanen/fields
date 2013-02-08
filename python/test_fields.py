@@ -8,8 +8,8 @@ import unittest
 class TestCase(unittest.TestCase):
 
     def assertParseEqual(self, text, output):
-        self.assertEqual(parse_buffer(encode(text), self.settings), output)
-        self.assertEqual(parse_file(encode(text), self.settings), output)
+        self.assertEqual(parse_buffer(encode(text), self.options), output)
+        self.assertEqual(parse_file(encode(text), self.options), output)
 
 
 class SettingsTest(TestCase):
@@ -102,7 +102,7 @@ class CSVTest(TestCase):
         self.assertParseEqual('a\tb\nc\n', [['a\tb'], ['c']])
 
     def setUp(self):
-        self.settings = {
+        self.options = {
             'delimiter' : ',',
             'quotechar' : '"'
         }
@@ -138,7 +138,7 @@ class TSVTest(TestCase):
         self.assertParseEqual('a,b\nc\n', [['a,b'], ['c']])
 
     def setUp(self):
-        self.settings = {
+        self.options = {
             'delimiter' : '\t',
             'quotechar' : None
         }
@@ -171,7 +171,7 @@ class UTF8Test(TestCase):
         self.assertParseEqual(u'\U000103A0"', '1:2: Unexpected character')
 
     def setUp(self):
-        self.settings = {
+        self.options = {
             'delimiter': ',',
             'quotechar': '"'
         }
@@ -192,7 +192,7 @@ class LimitsWithoutExpansionTest(TestCase):
         self.assertParseEqual(','.join('a' * 17), '1:32: Too many fields')
 
     def setUp(self):
-        self.settings = {
+        self.options = {
             '_expand'            : False,
             '_source_buffer_size': 1024,
             '_record_max_fields' : 16,
@@ -218,7 +218,7 @@ class LimitsWithExpansionTest(TestCase):
         self.assertParseEqual('%s,%s' % ('a' * 1024, 'a'), [['a' * 1024, 'a']])
 
     def setUp(self):
-        self.settings = {
+        self.options = {
             '_expand'            : True,
             '_source_buffer_size': 1024,
             '_record_max_fields' : 16,
@@ -226,17 +226,17 @@ class LimitsWithExpansionTest(TestCase):
         }
 
 
-def parse_buffer(text, settings):
-    return parse(text, settings)
+def parse_buffer(text, options):
+    return parse(text, options)
 
-def parse_file(text, settings):
+def parse_file(text, options):
     with tempfile.TemporaryFile() as outfile:
         outfile.write(text)
         outfile.seek(0)
-        return parse(outfile, settings)
+        return parse(outfile, options)
 
-def parse(source, settings):
-    reader = fields.reader(source, **settings)
+def parse(source, options):
+    reader = fields.reader(source, **options)
     try:
         return [decode(record) for record in reader]
     except fields.Error as e:
