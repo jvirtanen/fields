@@ -12,7 +12,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(parse_file(encode(text), self.options), output)
 
 
-class SettingsTest(TestCase):
+class OptionsTest(TestCase):
 
     def test_cr_as_delimiter(self):
         self.assertFail('Bad field delimiter', delimiter='\r')
