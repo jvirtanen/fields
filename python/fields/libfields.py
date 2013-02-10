@@ -9,8 +9,8 @@ except OSError:
 
 class Field(ctypes.Structure):
     _fields_ = [
-        ('value',   ctypes.POINTER(ctypes.c_char)),
-        ('length',  ctypes.c_size_t)
+        ('value', ctypes.POINTER(ctypes.c_char)),
+        ('length', ctypes.c_size_t)
     ]
 
 Field_p = ctypes.POINTER(Field)
@@ -18,8 +18,8 @@ Field_p = ctypes.POINTER(Field)
 
 class Position(ctypes.Structure):
     _fields_ = [
-        ('row',     ctypes.c_long),
-        ('column',  ctypes.c_long)
+        ('row', ctypes.c_long),
+        ('column', ctypes.c_long)
     ]
 
 Position_p = ctypes.POINTER(Position)
@@ -95,8 +95,8 @@ Record_p = ctypes.c_void_p
 
 class Format(ctypes.Structure):
     _fields_ = [
-        ('delimiter',   ctypes.c_char),
-        ('quote',       ctypes.c_char)
+        ('delimiter', ctypes.c_char),
+        ('quote', ctypes.c_char)
     ]
 
 Format_p = ctypes.POINTER(Format)
@@ -104,10 +104,10 @@ Format_p = ctypes.POINTER(Format)
 
 class Settings(ctypes.Structure):
     _fields_ = [
-        ('expand',              ctypes.c_int),
-        ('source_buffer_size',  ctypes.c_size_t),
-        ('record_buffer_size',  ctypes.c_size_t),
-        ('record_max_fields',   ctypes.c_size_t)
+        ('expand', ctypes.c_int),
+        ('source_buffer_size', ctypes.c_size_t),
+        ('record_buffer_size', ctypes.c_size_t),
+        ('record_max_fields', ctypes.c_size_t)
     ]
 
 Settings_p = ctypes.POINTER(Settings)
