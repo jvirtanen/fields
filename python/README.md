@@ -4,8 +4,9 @@ Fields for Python
 Fields for Python is a Python binding to Fields, the fast C library for
 reading CSV and other tabular text formats.
 
-Fields for Python is implemented using Python's `ctypes` module. As a
-consequence, it depends on an installation of Fields.
+Fields for Python is implemented using Python's `ctypes` module and depends
+on Fields' shared library. It serves as the host for Fields' tests and as an
+example of a language binding to Fields.
 
 
 Usage
