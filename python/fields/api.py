@@ -47,11 +47,8 @@ class Reader(object):
     def next(self):
         result = self.__reader.read(self.__record)
         if result != 0:
-            result = self.__reader.error()
-            if result:
-                raise Error(result)
-            else:
-                raise StopIteration
+            message = self.__reader.error()
+            raise Error(message) if message else StopIteration
         return [self.__record.field(i) for i in xrange(self.__record.size())]
 
 
