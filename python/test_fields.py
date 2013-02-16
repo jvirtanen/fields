@@ -82,7 +82,7 @@ class CSVTest(TestCase):
         self.assertParseEqual('  "a",  "b"\n  "c"\n',
             [['a', 'b'], ['c']])
 
-    def test_quoted_with_subsequent_whitespace(self):
+    def test_quoted_with_trailing_whitespace(self):
         self.assertParseEqual('"a"  ,"b"  \n"c"  \n',
             [['a', 'b'], ['c']])
 
@@ -92,7 +92,7 @@ class CSVTest(TestCase):
     def test_quoted_with_preceding_garbage(self):
         self.assertParseEqual('a"b",c', '1:2: Unexpected character')
 
-    def test_quoted_with_subsequent_garbage(self):
+    def test_quoted_with_trailing_garbage(self):
         self.assertParseEqual('"a"b,c', '1:4: Unexpected character')
 
     def test_quoted_among_non_quoted(self):
