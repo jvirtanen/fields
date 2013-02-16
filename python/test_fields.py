@@ -63,6 +63,12 @@ class CSVTest(TestCase):
     def test_empty_record(self):
         self.assertParseEqual('a,b\n\nc', [['a', 'b'], [], ['c']])
 
+    def test_preceding_whitespace(self):
+        self.assertParseEqual('  a,  b\n  c', [['  a', '  b'], ['  c']])
+
+    def test_trailing_whitespace(self):
+        self.assertParseEqual('a  ,b  \nc  ', [['a  ', 'b  '], ['c  ']])
+
     def test_quote(self):
         self.assertParseEqual('a"b,c', '1:2: Unexpected character')
 
@@ -133,6 +139,12 @@ class TSVTest(TestCase):
 
     def test_empty_record(self):
         self.assertParseEqual('a\tb\n\nc', [['a', 'b'], [], ['c']])
+
+    def test_preceding_whitespace(self):
+        self.assertParseEqual('  a\t  b\n  c', [['  a', '  b'], ['  c']])
+
+    def test_trailing_whitespace(self):
+        self.assertParseEqual('a  \tb  \nc  ', [['a  ', 'b  '], ['c  ']])
 
     def test_csv(self):
         self.assertParseEqual('a,b\nc\n', [['a,b'], ['c']])
