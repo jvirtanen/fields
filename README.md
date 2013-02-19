@@ -13,7 +13,8 @@ fields by field delimiters.
 
 Data read from the source must be in ASCII or UTF-8. The record separator may
 be either a carriage return (CR, Mac OS), a line feed (LF, Unix) or a CRLF
-(Windows). The field delimiter can be set to any character except CR or LF.
+(Windows). The field delimiter can be set to any ASCII character except CR or
+LF.
 
 Field delimiters and record separators can be embedded into quoted fields. A
 quoted field starts and ends with the quote character, and quote characters
