@@ -81,6 +81,9 @@ install: $(SHARED_LIB) $(STATIC_LIB)
 	$(Q) cd $(PREFIX)/lib; ln -fs $(SHARED_LIB_MAJOR) $(SHARED_LIB)
 .PHONY: install
 
+shared: $(SHARED_LIB)
+.PHONY: shared
+
 test: $(SHARED_LIB)
 	$(E) "  TEST     "
 	$(Q) cd python; $(MAKE) test
