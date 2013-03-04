@@ -97,7 +97,7 @@ $(STATIC_LIB): $(LIB_OBJS)
 	$(E) "  ARCHIVE  " $@
 	$(Q) $(AR) rcs $@ $^
 
-$(PROG): $(STATIC_LIB) $(OBJS)
+$(PROG): $(OBJS) $(STATIC_LIB)
 	$(E) "  LINK     " $@
 	$(Q) $(LD) $(LDFLAGS) -o $@ $^
 
