@@ -26,11 +26,15 @@ disabled.
 Installation
 ------------
 
+Installing Fields requires a C99 compiler and GNU Make.
+
+Install Fields to `/usr/local`, the default installation location:
+
     make install
 
-The default installation location is `/usr/local`. Override it with `$PREFIX`:
+Install Fields to `$HOME`, an alternative installation location:
 
-    PREFIX=$HOME make install
+    make install PREFIX=$HOME
 
 
 History
