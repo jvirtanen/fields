@@ -37,6 +37,16 @@ Install Fields to `$HOME`, an alternative installation location:
     make install PREFIX=$HOME
 
 
+Development
+-----------
+
+Running Fields' tests requires a C99 compiler, GNU Make and Python 2.6.
+
+Run Fields' tests:
+
+    make test
+
+
 History
 -------
 
