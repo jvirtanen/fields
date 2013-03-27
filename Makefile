@@ -59,7 +59,7 @@ else
 	Q :=
 endif
 
-all: examples test
+all: examples $(SHARED_LIB) $(STATIC_LIB)
 .PHONY: all
 
 clean:
