@@ -23,10 +23,18 @@ or LF. If the quote character is set to the null character (NUL), quoting is
 disabled.
 
 
+Building
+--------
+
+Building Fields requires a C99 compiler and GNU Make.
+
+Build Fields:
+
+    make
+
+
 Installation
 ------------
-
-Installing Fields requires a C99 compiler and GNU Make.
 
 Install Fields to `/usr/local`, the default installation location:
 
@@ -40,7 +48,7 @@ Install Fields to `$HOME`, an alternative installation location:
 Development
 -----------
 
-Running Fields' tests requires a C99 compiler, GNU Make and Python 2.6.
+Running Fields' tests requires Python 2.6.
 
 Run Fields' tests:
 
