@@ -65,7 +65,7 @@ all: examples $(SHARED_LIB) $(STATIC_LIB)
 clean:
 	$(E) "  CLEAN    "
 	$(Q) $(RM) $(LIB_OBJS) $(OBJS) $(PROG) $(SHARED_LIB) $(STATIC_LIB)
-	$(Q) cd python; $(MAKE) clean
+	$(Q) $(MAKE) -C python clean
 .PHONY: clean
 
 examples: $(PROG)
