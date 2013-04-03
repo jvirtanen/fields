@@ -86,7 +86,7 @@ shared: $(SHARED_LIB)
 
 test: $(SHARED_LIB)
 	$(E) "  TEST     "
-	$(Q) $(MAKE) -C python
+	$(Q) $(MAKE) -C python test
 .PHONY: test
 
 $(SHARED_LIB): $(LIB_OBJS)
