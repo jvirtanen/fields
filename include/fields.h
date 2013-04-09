@@ -47,7 +47,7 @@ extern "C" {
 /*
  * The current version of the library.
  */
-#define FIELDS_VERSION "0.5.0"
+#define FIELDS_VERSION "0.6.0"
 
 /*
  * Formats

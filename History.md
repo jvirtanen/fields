@@ -1,6 +1,15 @@
 History
 =======
 
+0.6.0 (2013-04-09)
+  - Improve documentation.
+  - Add `fields_reader_position`.
+  - Fix handling of CR and LF.
+  - Allow `NULL` for default settings.
+  - Extract `fields_format`.
+  - Increase default source buffer size.
+  - Fix `fields_fd_alloc`.
+
 0.5.0 (2012-09-22)
   - Improve documentation.
   - Rename `file_buffer_size` to `source_buffer_size`.
