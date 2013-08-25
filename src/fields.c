@@ -127,9 +127,46 @@ enum fields_state {
     FIELDS_STATE_BEYOND_QUOTED_FIELD
 };
 
-static inline size_t fields_charlen(char);
-static inline bool fields_crlf(char);
-static inline bool fields_whitespace(char);
+/*
+ * Utilities
+ * =========
+ */
+
+static inline size_t
+fields_charlen(char byte)
+{
+    /*
+     * This function calculates the length of a character in bytes in UTF-8
+     * assuming this byte is the initial byte. See RFC 3629 for details.
+     */
+
+    if ((byte & 0x80) == 0x00)
+        return 1;
+
+    if ((byte & 0xE0) == 0xC0)
+        return 2;
+
+    if ((byte & 0xF0) == 0xE0)
+        return 3;
+
+    if ((byte & 0xF8) == 0xF0)
+        return 4;
+
+    /* This byte is not the initial byte or the encoding is not UTF-8. */
+    return 0;
+}
+
+static inline bool
+fields_crlf(char ch)
+{
+    return (ch == FIELDS_CR) || (ch == FIELDS_LF);
+}
+
+static inline bool
+fields_whitespace(char ch)
+{
+    return (ch == FIELDS_HT) || (ch == FIELDS_SP);
+}
 
 /*
  * Records
@@ -1049,45 +1086,4 @@ fields_file_free(void *source)
 
     free(self->buffer);
     free(self);
-}
-
-/*
- * Utilities
- * =========
- */
-
-static inline size_t
-fields_charlen(char byte)
-{
-    /*
-     * This function calculates the length of a character in bytes in UTF-8
-     * assuming this byte is the initial byte. See RFC 3629 for details.
-     */
-
-    if ((byte & 0x80) == 0x00)
-        return 1;
-
-    if ((byte & 0xE0) == 0xC0)
-        return 2;
-
-    if ((byte & 0xF0) == 0xE0)
-        return 3;
-
-    if ((byte & 0xF8) == 0xF0)
-        return 4;
-
-    /* This byte is not the initial byte or the encoding is not UTF-8. */
-    return 0;
-}
-
-static inline bool
-fields_crlf(char ch)
-{
-    return (ch == FIELDS_CR) || (ch == FIELDS_LF);
-}
-
-static inline bool
-fields_whitespace(char ch)
-{
-    return (ch == FIELDS_HT) || (ch == FIELDS_SP);
 }
