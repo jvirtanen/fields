@@ -109,16 +109,6 @@ static struct fields_buffer *fields_buffer_alloc(const char *, size_t);
 static int fields_buffer_read(void *, const char **, size_t *);
 static void fields_buffer_free(void *);
 
-struct fields_file {
-    FILE *  file;
-    char *  buffer;
-    size_t  buffer_size;
-};
-
-static struct fields_file *fields_file_alloc(FILE *, size_t);
-static int fields_file_read(void *, const char **, size_t *);
-static void fields_file_free(void *);
-
 enum fields_state {
     FIELDS_STATE_MAYBE_INSIDE_FIELD,
     FIELDS_STATE_INSIDE_FIELD,
@@ -166,6 +156,67 @@ static inline bool
 fields_whitespace(char ch)
 {
     return (ch == FIELDS_HT) || (ch == FIELDS_SP);
+}
+
+/*
+ * File Sources
+ * ============
+ */
+
+struct fields_file {
+    FILE *  file;
+    char *  buffer;
+    size_t  buffer_size;
+};
+
+static struct fields_file *
+fields_file_alloc(FILE *file, size_t buffer_size)
+{
+    struct fields_file *self;
+    char *buffer;
+
+    buffer = malloc(buffer_size);
+    if (buffer == NULL)
+        return NULL;
+
+    self = malloc(sizeof(*self));
+    if (self == NULL) {
+        free(buffer);
+        return NULL;
+    }
+
+    self->file = file;
+    self->buffer = buffer;
+    self->buffer_size = buffer_size;
+
+    return self;
+}
+
+static int
+fields_file_read(void *source, const char **buffer, size_t *buffer_size)
+{
+    struct fields_file *self = source;
+    size_t size;
+
+    size = fread(self->buffer, 1, self->buffer_size, self->file);
+    if (size != self->buffer_size) {
+        if (ferror(self->file))
+            return FIELDS_FAILURE;
+    }
+
+    *buffer = self->buffer;
+    *buffer_size = size;
+
+    return 0;
+}
+
+static void
+fields_file_free(void *source)
+{
+    struct fields_file *self = source;
+
+    free(self->buffer);
+    free(self);
 }
 
 /*
@@ -1030,60 +1081,5 @@ fields_buffer_free(void *source)
 {
     struct fields_buffer *self = source;
 
-    free(self);
-}
-
-/*
- * File Sources
- * ============
- */
-
-static struct fields_file *
-fields_file_alloc(FILE *file, size_t buffer_size)
-{
-    struct fields_file *self;
-    char *buffer;
-
-    buffer = malloc(buffer_size);
-    if (buffer == NULL)
-        return NULL;
-
-    self = malloc(sizeof(*self));
-    if (self == NULL) {
-        free(buffer);
-        return NULL;
-    }
-
-    self->file = file;
-    self->buffer = buffer;
-    self->buffer_size = buffer_size;
-
-    return self;
-}
-
-static int
-fields_file_read(void *source, const char **buffer, size_t *buffer_size)
-{
-    struct fields_file *self = source;
-    size_t size;
-
-    size = fread(self->buffer, 1, self->buffer_size, self->file);
-    if (size != self->buffer_size) {
-        if (ferror(self->file))
-            return FIELDS_FAILURE;
-    }
-
-    *buffer = self->buffer;
-    *buffer_size = size;
-
-    return 0;
-}
-
-static void
-fields_file_free(void *source)
-{
-    struct fields_file *self = source;
-
-    free(self->buffer);
     free(self);
 }
