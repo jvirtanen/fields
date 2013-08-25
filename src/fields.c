@@ -100,15 +100,6 @@ static int fields_parse_start(struct fields_reader *, struct fields_record *);
 static int fields_parse_finish(struct fields_reader *, struct fields_record *,
     const char *, char *);
 
-struct fields_buffer {
-    const char *buffer;
-    size_t      buffer_size;
-};
-
-static struct fields_buffer *fields_buffer_alloc(const char *, size_t);
-static int fields_buffer_read(void *, const char **, size_t *);
-static void fields_buffer_free(void *);
-
 enum fields_state {
     FIELDS_STATE_MAYBE_INSIDE_FIELD,
     FIELDS_STATE_INSIDE_FIELD,
@@ -156,6 +147,53 @@ static inline bool
 fields_whitespace(char ch)
 {
     return (ch == FIELDS_HT) || (ch == FIELDS_SP);
+}
+
+/*
+ * Buffer Sources
+ * ==============
+ */
+
+struct fields_buffer {
+    const char *buffer;
+    size_t      buffer_size;
+};
+
+static struct fields_buffer *
+fields_buffer_alloc(const char *buffer, size_t buffer_size)
+{
+    struct fields_buffer *self;
+
+    self = malloc(sizeof(*self));
+    if (self == NULL)
+        return NULL;
+
+    self->buffer = buffer;
+    self->buffer_size = buffer_size;
+
+    return self;
+}
+
+static int
+fields_buffer_read(void *source, const char **buffer, size_t *buffer_size)
+{
+    struct fields_buffer *self = source;
+
+    *buffer = self->buffer;
+    *buffer_size = self->buffer_size;
+
+    self->buffer = NULL;
+    self->buffer_size = 0;
+
+    return 0;
+}
+
+static void
+fields_buffer_free(void *source)
+{
+    struct fields_buffer *self = source;
+
+    free(self);
 }
 
 /*
@@ -1040,46 +1078,4 @@ fields_parse_finish(struct fields_reader *reader, struct fields_record *record,
     fields_record_finish(record, wp);
 
     return 0;
-}
-
-/*
- * Buffer Sources
- * ==============
- */
-
-static struct fields_buffer *
-fields_buffer_alloc(const char *buffer, size_t buffer_size)
-{
-    struct fields_buffer *self;
-
-    self = malloc(sizeof(*self));
-    if (self == NULL)
-        return NULL;
-
-    self->buffer = buffer;
-    self->buffer_size = buffer_size;
-
-    return self;
-}
-
-static int
-fields_buffer_read(void *source, const char **buffer, size_t *buffer_size)
-{
-    struct fields_buffer *self = source;
-
-    *buffer = self->buffer;
-    *buffer_size = self->buffer_size;
-
-    self->buffer = NULL;
-    self->buffer_size = 0;
-
-    return 0;
-}
-
-static void
-fields_buffer_free(void *source)
-{
-    struct fields_buffer *self = source;
-
-    free(self);
 }
