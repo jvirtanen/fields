@@ -34,34 +34,6 @@ struct fields_fd {
     size_t  buffer_size;
 };
 
-static struct fields_fd *fields_fd_alloc(int, size_t);
-static int fields_fd_read(void *, const char **, size_t *);
-static void fields_fd_free(void *);
-
-struct fields_reader *
-fields_read_fd(int fd, const struct fields_format *format,
-    const struct fields_settings *settings)
-{
-    struct fields_reader *reader;
-    struct fields_fd *source;
-
-    if (settings == NULL)
-        settings = &fields_defaults;
-
-    source = fields_fd_alloc(fd, settings->source_buffer_size);
-    if (source == NULL)
-        return NULL;
-
-    reader = fields_reader_alloc(source, &fields_fd_read, &fields_fd_free,
-        format, settings);
-    if (reader == NULL) {
-        fields_fd_free(source);
-        return NULL;
-    }
-
-    return reader;
-}
-
 static struct fields_fd *
 fields_fd_alloc(int fd, size_t buffer_size)
 {
@@ -108,4 +80,28 @@ fields_fd_free(void *source)
 
     free(self->buffer);
     free(self);
+}
+
+struct fields_reader *
+fields_read_fd(int fd, const struct fields_format *format,
+    const struct fields_settings *settings)
+{
+    struct fields_reader *reader;
+    struct fields_fd *source;
+
+    if (settings == NULL)
+        settings = &fields_defaults;
+
+    source = fields_fd_alloc(fd, settings->source_buffer_size);
+    if (source == NULL)
+        return NULL;
+
+    reader = fields_reader_alloc(source, &fields_fd_read, &fields_fd_free,
+        format, settings);
+    if (reader == NULL) {
+        fields_fd_free(source);
+        return NULL;
+    }
+
+    return reader;
 }
