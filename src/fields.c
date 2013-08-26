@@ -46,26 +46,6 @@ static inline void fields_context_update(struct fields_context *, char);
 static void fields_context_position(const struct fields_context *,
     struct fields_position *);
 
-struct fields_reader
-{
-    void *                  source;
-    fields_source_read_fn * source_read;
-    fields_source_free_fn * source_free;
-    char                    delimiter;
-    char                    quote;
-    fields_parse_fn *       parse;
-    const char *            buffer;
-    size_t                  buffer_size;
-    const char *            cursor;
-    char                    skip;
-    int                     error;
-    struct fields_context   context;
-};
-
-static const char *fields_reader_end(const struct fields_reader *);
-static int fields_reader_fill(struct fields_reader *);
-static void fields_reader_skip(struct fields_reader *);
-
 static fields_parse_fn *fields_format_parser(const struct fields_format *);
 
 static int fields_parse_unquoted(struct fields_reader *,
@@ -500,6 +480,22 @@ fields_context_position(const struct fields_context *self,
  * Readers
  * =======
  */
+
+struct fields_reader
+{
+    void *                  source;
+    fields_source_read_fn * source_read;
+    fields_source_free_fn * source_free;
+    char                    delimiter;
+    char                    quote;
+    fields_parse_fn *       parse;
+    const char *            buffer;
+    size_t                  buffer_size;
+    const char *            cursor;
+    char                    skip;
+    int                     error;
+    struct fields_context   context;
+};
 
 struct fields_reader *
 fields_read_buffer(const char *buffer, size_t buffer_size,
