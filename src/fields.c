@@ -34,18 +34,6 @@
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
-struct fields_context
-{
-    struct fields_position  position;
-    size_t                  length;
-    char                    last;
-};
-
-static void fields_context_init(struct fields_context *);
-static inline void fields_context_update(struct fields_context *, char);
-static void fields_context_position(const struct fields_context *,
-    struct fields_position *);
-
 static fields_parse_fn *fields_format_parser(const struct fields_format *);
 
 static int fields_parse_unquoted(struct fields_reader *,
@@ -432,6 +420,13 @@ fields_position_return(struct fields_position *self)
  * Contexts
  * ========
  */
+
+struct fields_context
+{
+    struct fields_position  position;
+    size_t                  length;
+    char                    last;
+};
 
 static void
 fields_context_init(struct fields_context *self)
