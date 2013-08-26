@@ -34,23 +34,6 @@
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
-struct fields_record
-{
-    char *  buffer;
-    size_t  buffer_size;
-    char ** fields;
-    size_t  num_fields;
-    size_t  max_fields;
-    bool    expand;
-};
-
-static const char *fields_record_end(const struct fields_record *);
-static void fields_record_init(struct fields_record *);
-static char *fields_record_expand(struct fields_record *, char *);
-static int fields_record_push(struct fields_record *, char *);
-static char *fields_record_pop(struct fields_record *);
-static void fields_record_finish(struct fields_record *, char *);
-
 static void fields_position_init(struct fields_position *);
 static inline void fields_position_advance(struct fields_position *);
 static inline void fields_position_return(struct fields_position *);
@@ -261,6 +244,16 @@ fields_file_free(void *source)
  * Records
  * =======
  */
+
+struct fields_record
+{
+    char *  buffer;
+    size_t  buffer_size;
+    char ** fields;
+    size_t  num_fields;
+    size_t  max_fields;
+    bool    expand;
+};
 
 struct fields_record *
 fields_record_alloc(const struct fields_settings *settings)
