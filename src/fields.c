@@ -34,8 +34,6 @@
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
-static fields_parse_fn *fields_format_parser(const struct fields_format *);
-
 static int fields_parse_unquoted(struct fields_reader *,
     struct fields_record *);
 static int fields_parse_quoted(struct fields_reader *, struct fields_record *);
@@ -458,6 +456,70 @@ fields_context_position(const struct fields_context *self,
 }
 
 /*
+ * Formats
+ * =======
+ */
+
+const struct fields_format fields_csv =
+{
+    .delimiter  = ',',
+    .quote      = '"'
+};
+
+const struct fields_format fields_tsv =
+{
+    .delimiter  = '\t',
+    .quote      = '\0'
+};
+
+int
+fields_format_error(const struct fields_format *format)
+{
+    if (format->delimiter == FIELDS_CR)
+        return FIELDS_FORMAT_ERROR_DELIMITER;
+
+    if (format->delimiter == FIELDS_LF)
+        return FIELDS_FORMAT_ERROR_DELIMITER;
+
+    if (format->quote == FIELDS_CR)
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    if (format->quote == FIELDS_LF)
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    if (format->quote == format->delimiter)
+        return FIELDS_FORMAT_ERROR_QUOTE;
+
+    return 0;
+}
+
+const char *
+fields_format_strerror(int error)
+{
+    switch (error) {
+    case FIELDS_FORMAT_ERROR_DELIMITER:
+        return "Bad field delimiter";
+    case FIELDS_FORMAT_ERROR_QUOTE:
+        return "Bad quote character";
+    case 0:
+        return "";
+    default:
+        break;
+    }
+
+    return "Unknown error";
+}
+
+static fields_parse_fn *
+fields_format_parser(const struct fields_format *format)
+{
+    if (format->quote != '\0')
+        return &fields_parse_quoted;
+    else
+        return &fields_parse_unquoted;
+}
+
+/*
  * Readers
  * =======
  */
@@ -650,71 +712,6 @@ fields_reader_strerror(int error)
 
     return "Unknown error";
 }
-
-/*
- * Formats
- * =======
- */
-
-const struct fields_format fields_csv =
-{
-    .delimiter  = ',',
-    .quote      = '"'
-};
-
-const struct fields_format fields_tsv =
-{
-    .delimiter  = '\t',
-    .quote      = '\0'
-};
-
-int
-fields_format_error(const struct fields_format *format)
-{
-    if (format->delimiter == FIELDS_CR)
-        return FIELDS_FORMAT_ERROR_DELIMITER;
-
-    if (format->delimiter == FIELDS_LF)
-        return FIELDS_FORMAT_ERROR_DELIMITER;
-
-    if (format->quote == FIELDS_CR)
-        return FIELDS_FORMAT_ERROR_QUOTE;
-
-    if (format->quote == FIELDS_LF)
-        return FIELDS_FORMAT_ERROR_QUOTE;
-
-    if (format->quote == format->delimiter)
-        return FIELDS_FORMAT_ERROR_QUOTE;
-
-    return 0;
-}
-
-const char *
-fields_format_strerror(int error)
-{
-    switch (error) {
-    case FIELDS_FORMAT_ERROR_DELIMITER:
-        return "Bad field delimiter";
-    case FIELDS_FORMAT_ERROR_QUOTE:
-        return "Bad quote character";
-    case 0:
-        return "";
-    default:
-        break;
-    }
-
-    return "Unknown error";
-}
-
-static fields_parse_fn *
-fields_format_parser(const struct fields_format *format)
-{
-    if (format->quote != '\0')
-        return &fields_parse_quoted;
-    else
-        return &fields_parse_unquoted;
-}
-
 
 /*
  * Settings
