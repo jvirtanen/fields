@@ -34,10 +34,6 @@
 
 typedef int fields_parse_fn(struct fields_reader *, struct fields_record *);
 
-static void fields_position_init(struct fields_position *);
-static inline void fields_position_advance(struct fields_position *);
-static inline void fields_position_return(struct fields_position *);
-
 struct fields_context
 {
     struct fields_position  position;
