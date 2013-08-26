@@ -39,21 +39,7 @@ static fields_parse_fn *fields_format_parser(const struct fields_format *);
 static int fields_parse_unquoted(struct fields_reader *,
     struct fields_record *);
 static int fields_parse_quoted(struct fields_reader *, struct fields_record *);
-static int fields_parse_crlf(struct fields_reader *, struct fields_record *,
-    const char *, char *);
-static int fields_parse_fail(struct fields_reader *, struct fields_record *,
-    enum fields_reader_error);
 static int fields_parse_start(struct fields_reader *, struct fields_record *);
-static int fields_parse_finish(struct fields_reader *, struct fields_record *,
-    const char *, char *);
-
-enum fields_state {
-    FIELDS_STATE_MAYBE_INSIDE_FIELD,
-    FIELDS_STATE_INSIDE_FIELD,
-    FIELDS_STATE_INSIDE_QUOTED_FIELD,
-    FIELDS_STATE_MAYBE_BEYOND_QUOTED_FIELD,
-    FIELDS_STATE_BEYOND_QUOTED_FIELD
-};
 
 /*
  * Utilities
@@ -783,6 +769,41 @@ fields_settings_strerror(int error)
  */
 
 static int
+fields_parse_fail(struct fields_reader *reader, struct fields_record *record,
+    enum fields_reader_error error)
+{
+    reader->error = error;
+
+    fields_record_init(record);
+
+    return FIELDS_FAILURE;
+}
+
+static int
+fields_parse_finish(struct fields_reader *reader, struct fields_record *record,
+    const char *rp, char *wp)
+{
+    reader->cursor = rp;
+
+    fields_record_finish(record, wp);
+
+    return 0;
+}
+
+static int
+fields_parse_crlf(struct fields_reader *reader, struct fields_record *record,
+    const char *rp, char *wp)
+{
+    if (*rp == FIELDS_CR)
+        reader->skip = FIELDS_LF;
+
+    *wp++ = '\0';
+    rp++;
+
+    return fields_parse_finish(reader, record, rp, wp);
+}
+
+static int
 fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record)
 {
     char delimiter;
@@ -847,6 +868,14 @@ fields_parse_unquoted(struct fields_reader *reader, struct fields_record *record
     return fields_parse_fail(reader, record,
         FIELDS_READER_ERROR_UNEXPECTED_CHARACTER);
 }
+
+enum fields_state {
+    FIELDS_STATE_MAYBE_INSIDE_FIELD,
+    FIELDS_STATE_INSIDE_FIELD,
+    FIELDS_STATE_INSIDE_QUOTED_FIELD,
+    FIELDS_STATE_MAYBE_BEYOND_QUOTED_FIELD,
+    FIELDS_STATE_BEYOND_QUOTED_FIELD
+};
 
 static int
 fields_parse_quoted(struct fields_reader *reader, struct fields_record *record)
@@ -1006,30 +1035,6 @@ fields_parse_quoted(struct fields_reader *reader, struct fields_record *record)
 }
 
 static int
-fields_parse_crlf(struct fields_reader *reader, struct fields_record *record,
-    const char *rp, char *wp)
-{
-    if (*rp == FIELDS_CR)
-        reader->skip = FIELDS_LF;
-
-    *wp++ = '\0';
-    rp++;
-
-    return fields_parse_finish(reader, record, rp, wp);
-}
-
-static int
-fields_parse_fail(struct fields_reader *reader, struct fields_record *record,
-    enum fields_reader_error error)
-{
-    reader->error = error;
-
-    fields_record_init(record);
-
-    return FIELDS_FAILURE;
-}
-
-static int
 fields_parse_start(struct fields_reader *reader, struct fields_record *record)
 {
     if (reader->error != 0)
@@ -1045,17 +1050,6 @@ fields_parse_start(struct fields_reader *reader, struct fields_record *record)
     }
 
     fields_reader_skip(reader);
-
-    return 0;
-}
-
-static int
-fields_parse_finish(struct fields_reader *reader, struct fields_record *record,
-    const char *rp, char *wp)
-{
-    reader->cursor = rp;
-
-    fields_record_finish(record, wp);
 
     return 0;
 }
