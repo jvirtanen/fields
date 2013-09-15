@@ -1,4 +1,5 @@
 import ctypes
+import os
 
 
 try:
@@ -30,7 +31,11 @@ class Reader(object):
     def __init__(self, source, fmt, settings):
         try:
             self.source = source
-            self.ptr = _so.fields_read_fd(self.source.fileno(), fmt, settings)
+            fd = self.source.fileno()
+            if gzip(fd):
+                self.ptr = _so.fields_read_gzip(fd, fmt, settings)
+            else:
+                self.ptr = _so.fields_read_fd(fd, fmt, settings)
         except AttributeError:
             self.source = str(source)
             self.ptr = _so.fields_read_buffer(self.source, len(self.source),
@@ -113,6 +118,14 @@ class Settings(ctypes.Structure):
 Settings_p = ctypes.POINTER(Settings)
 
 
+def gzip(fd):
+    pos = os.lseek(fd, 0, os.SEEK_CUR)
+    os.lseek(fd, 0, os.SEEK_SET)
+    result = os.read(fd, 2) == '\x1f\x8b' # RFC 1952
+    os.lseek(fd, pos, os.SEEK_SET)
+    return result
+
+
 def format_strerror(fmt):
     result = _so.fields_format_error(fmt)
     return _so.fields_format_strerror(result) if result else None
@@ -132,6 +145,9 @@ _so.fields_read_buffer.restype = Reader_p
 
 _so.fields_read_fd.argtypes = [ ctypes.c_int, Format_p, Settings_p ]
 _so.fields_read_fd.restype = Reader_p
+
+_so.fields_read_gzip.argtypes = [ ctypes.c_int, Format_p, Settings_p ]
+_so.fields_read_gzip.restype = Reader_p
 
 _so.fields_reader_free.argtypes = [ Reader_p ]
 _so.fields_reader_free.restype = None

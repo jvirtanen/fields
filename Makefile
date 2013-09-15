@@ -16,7 +16,10 @@ CFLAGS += -fPIC
 CFLAGS += -pedantic
 CFLAGS += -std=c99
 
+LDFLAGS += -lz
+
 LIB_OBJS += src/fields.o
+LIB_OBJS += src/fields_gzip.o
 LIB_OBJS += src/fields_posix.o
 LIB_NAME := libfields
 

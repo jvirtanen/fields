@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import fields
+import gzip
+import StringIO
 import tempfile
 import unittest
 
@@ -10,6 +12,7 @@ class TestCase(unittest.TestCase):
     def assertParseEqual(self, text, output):
         self.assertEqual(parse_buffer(encode(text), self.options), output)
         self.assertEqual(parse_file(encode(text), self.options), output)
+        self.assertEqual(parse_gzip_file(encode(text), self.options), output)
 
 
 class OptionsTest(TestCase):
@@ -247,12 +250,22 @@ def parse_file(text, options):
         outfile.seek(0)
         return parse(outfile, options)
 
+def parse_gzip_file(text, options):
+    return parse_file(compress(text), options)
+
 def parse(source, options):
     reader = fields.reader(source, **options)
     try:
         return [decode(record) for record in reader]
     except fields.Error as e:
         return str(e)
+
+def compress(text):
+    compressed_text = StringIO.StringIO()
+    outfile = gzip.GzipFile(fileobj=compressed_text, mode='wb')
+    outfile.write(text)
+    outfile.close()
+    return compressed_text.getvalue()
 
 def decode(record):
     return [field.decode('utf-8') for field in record]
