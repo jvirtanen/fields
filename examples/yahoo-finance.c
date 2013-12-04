@@ -13,7 +13,21 @@
  *     http://finance.yahoo.com/q/hp?s=SPY
  */
 
-static void die(const char *, ...);
+static void
+die(const char *fmt, ...)
+{
+    va_list ap;
+
+    fprintf(stderr, "fatal: ");
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+
+    fprintf(stderr, "\n");
+
+    exit(EXIT_FAILURE);
+}
 
 int
 main(void)
@@ -63,20 +77,4 @@ main(void)
     fields_reader_free(reader);
 
     return 0;
-}
-
-static void
-die(const char *fmt, ...)
-{
-    va_list ap;
-
-    fprintf(stderr, "fatal: ");
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-
-    exit(EXIT_FAILURE);
 }
