@@ -30,23 +30,6 @@ endif
 SHARED_LIB := $(LIB_NAME).$(SHARED_SUFFIX)
 STATIC_LIB := $(LIB_NAME).$(STATIC_SUFFIX)
 
-VERSION_MAJOR := 0
-VERSION_MINOR := 6.0
-
-SHARED_LIB_MAJOR := $(LIB_NAME).$(SHARED_SUFFIX).$(VERSION_MAJOR)
-SHARED_LIB_MINOR := $(SHARED_LIB_MAJOR).$(VERSION_MINOR)
-
-ifeq ($(uname_S),Darwin)
-	SHARED_LIB_MAJOR := $(LIB_NAME).$(VERSION_MAJOR).$(SHARED_SUFFIX)
-	SHARED_LIB_MINOR := $(LIB_NAME).$(VERSION_MAJOR).$(VERSION_MINOR).$(SHARED_SUFFIX)
-endif
-
-SONAME := -soname,$(SHARED_LIB_MAJOR)
-
-ifeq ($(uname_S),Darwin)
-	SONAME := -install_name,$(SHARED_LIB_MAJOR)
-endif
-
 OBJS += examples/yahoo-finance.o
 PROG := examples/yahoo-finance
 
@@ -85,7 +68,7 @@ test: $(SHARED_LIB)
 
 $(SHARED_LIB): $(LIB_OBJS)
 	$(E) "  LINK     " $@
-	$(Q) $(CC) $(LDFLAGS) -shared -Wl,$(SONAME) -o $@ $^
+	$(Q) $(CC) $(LDFLAGS) -shared -o $@ $^
 
 $(STATIC_LIB): $(LIB_OBJS)
 	$(E) "  ARCHIVE  " $@
