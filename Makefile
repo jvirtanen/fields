@@ -75,10 +75,7 @@ install: $(SHARED_LIB) $(STATIC_LIB)
 	$(E) "  INSTALL  "
 	$(Q) mkdir -p $(PREFIX)/include $(PREFIX)/lib
 	$(Q) cp include/fields.h include/fields_posix.h $(PREFIX)/include
-	$(Q) cp $(SHARED_LIB) $(PREFIX)/lib/$(SHARED_LIB_MINOR)
 	$(Q) cp $(STATIC_LIB) $(PREFIX)/lib
-	$(Q) cd $(PREFIX)/lib; ln -fs $(SHARED_LIB_MINOR) $(SHARED_LIB_MAJOR)
-	$(Q) cd $(PREFIX)/lib; ln -fs $(SHARED_LIB_MAJOR) $(SHARED_LIB)
 .PHONY: install
 
 test: $(SHARED_LIB)
