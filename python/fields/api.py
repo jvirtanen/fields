@@ -2,14 +2,14 @@ from . import libfields
 
 
 class Error(Exception):
-    """
+    '''
     This exception is raised whenever an error is detected.
-    """
+    '''
     pass
 
 
 def reader(source, **kwargs):
-    """
+    '''
     Return a reader object that reads from `source`. `source` can be either a
     string or a file object. If `source` is a file object, it should be opened
     with the `b` flag.
@@ -26,7 +26,7 @@ def reader(source, **kwargs):
 
     The returned object is an iterator. Each iteration returns a record, a
     sequence of fields. Records are implemented as lists of strings.
-    """
+    '''
     return Reader(source, **kwargs)
 
 
